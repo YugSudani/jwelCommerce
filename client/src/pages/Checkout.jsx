@@ -55,26 +55,26 @@ const PAYMENT_OPTIONS = [
 ];
 
 const CITIES = [
-  "Agartala", "Agra", "Ahmedabad", "Aizawl", "Ajmer", "Akola", "Alappuzha", "Aligarh", 
-  "Allahabad", "Alwar", "Ambattur", "Amravati", "Amritsar", "Anand", "Ankleshwar", 
-  "Asansol", "Aurangabad", "Avadi", "Bareilly", "Bangalore", "Belgaum", "Bhagalpur", 
-  "Bharuch", "Bhavnagar", "Bhilai", "Bhiwandi", "Bhopal", "Bhubaneswar", "Bikaner", 
-  "Bilaspur", "Bokaro", "Chandigarh", "Chennai", "Coimbatore", "Cuttack", "Dehradun", 
-  "Delhi", "Dhanbad", "Bhilwara", "Durgapur", "Erode", "Faridabad", "Firozabad", 
-  "Gandhinagar", "Gaya", "Ghaziabad", "Gopalpur", "Gorakhpur", "Gulbarga", "Guntur", 
-  "Guwahati", "Gwalior", "Howrah", "Hubli-Dharwad", "Hyderabad", "Ichalkaranji", 
-  "Imphal", "Indore", "Itanagar", "Jabalpur", "Jaipur", "Jalandhar", "Jalgaon", 
-  "Jammu", "Jamnagar", "Jamshedpur", "Jhansi", "Jodhpur", "Junagadh", "Kakinada", 
-  "Kalyan-Dombivli", "Kanpur", "Karnal", "Kochi", "Kolhapur", "Kolkata", "Kollam", 
-  "Korba", "Kota", "Kottayam", "Kozhikode", "Kurnool", "Latur", "Lucknow", "Ludhiana", 
-  "Madurai", "Malappuram", "Mathura", "Mangalore", "Meerut", "Mira-Bhayandar", 
-  "Moradabad", "Mumbai", "Muzaffarnagar", "Mysore", "Nagpur", "Nanded", "Nashik", 
-  "Navi Mumbai", "Navsari", "Nellore", "Noida", "Panaji", "Panchkula", "Patiala", 
-  "Patna", "Pimpri-Chinchwad", "Puducherry", "Pune", "Raipur", "Rajahmundry", 
-  "Rajkot", "Ranchi", "Rourkela", "Sagar", "Salem", "Sangli", "Satara", "Shimla", 
-  "Siliguri", "Solapur", "Srinagar", "Surat", "Thane", "Thiruvananthapuram", 
-  "Thrissur", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Tirupati", "Udaipur", 
-  "Ujjain", "Ulhasnagar", "Vadodara", "Valsad", "Vapi", "Varanasi", "Vasai-Virar", 
+  "Agartala", "Agra", "Ahmedabad", "Aizawl", "Ajmer", "Akola", "Alappuzha", "Aligarh",
+  "Allahabad", "Alwar", "Ambattur", "Amravati", "Amritsar", "Anand", "Ankleshwar",
+  "Asansol", "Aurangabad", "Avadi", "Bareilly", "Bangalore", "Belgaum", "Bhagalpur",
+  "Bharuch", "Bhavnagar", "Bhilai", "Bhiwandi", "Bhopal", "Bhubaneswar", "Bikaner",
+  "Bilaspur", "Bokaro", "Chandigarh", "Chennai", "Coimbatore", "Cuttack", "Dehradun",
+  "Delhi", "Dhanbad", "Bhilwara", "Durgapur", "Erode", "Faridabad", "Firozabad",
+  "Gandhinagar", "Gaya", "Ghaziabad", "Gopalpur", "Gorakhpur", "Gulbarga", "Guntur",
+  "Guwahati", "Gwalior", "Howrah", "Hubli-Dharwad", "Hyderabad", "Ichalkaranji",
+  "Imphal", "Indore", "Itanagar", "Jabalpur", "Jaipur", "Jalandhar", "Jalgaon",
+  "Jammu", "Jamnagar", "Jamshedpur", "Jhansi", "Jodhpur", "Junagadh", "Kakinada",
+  "Kalyan-Dombivli", "Kanpur", "Karnal", "Kochi", "Kolhapur", "Kolkata", "Kollam",
+  "Korba", "Kota", "Kottayam", "Kozhikode", "Kurnool", "Latur", "Lucknow", "Ludhiana",
+  "Madurai", "Malappuram", "Mathura", "Mangalore", "Meerut", "Mira-Bhayandar",
+  "Moradabad", "Mumbai", "Muzaffarnagar", "Mysore", "Nagpur", "Nanded", "Nashik",
+  "Navi Mumbai", "Navsari", "Nellore", "Noida", "Panaji", "Panchkula", "Patiala",
+  "Patna", "Pimpri-Chinchwad", "Puducherry", "Pune", "Raipur", "Rajahmundry",
+  "Rajkot", "Ranchi", "Rourkela", "Sagar", "Salem", "Sangli", "Satara", "Shimla",
+  "Siliguri", "Solapur", "Srinagar", "Surat", "Thane", "Thiruvananthapuram",
+  "Thrissur", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Tirupati", "Udaipur",
+  "Ujjain", "Ulhasnagar", "Vadodara", "Valsad", "Vapi", "Varanasi", "Vasai-Virar",
   "Vellore", "Vijayawada", "Visakhapatnam", "Warangal"
 ].sort();
 
@@ -130,6 +130,7 @@ const Checkout = () => {
   const handleNext = () => {
     if (step === 0 && !validateShipping()) return;
     setStep((s) => s + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePlaceOrder = async () => {
@@ -192,8 +193,8 @@ const Checkout = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-8 overflow-x-hidden">
-      <BackButton/>
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 py-1 space-y-3 overflow-x-hidden">
+      <BackButton />
       {/* Page Header */}
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
@@ -211,9 +212,8 @@ const Checkout = () => {
             <React.Fragment key={name}>
               <div className="flex flex-col items-center gap-2">
                 <div
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-500 ${
-                    i < step ? "bg-green-500 text-white" : i === step ? "bg-blue-600 text-white scale-110" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                  }`}
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-black text-xs sm:text-sm transition-all duration-500 ${i < step ? "bg-green-500 text-white" : i === step ? "bg-blue-600 text-white scale-110" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                    }`}
                 >
                   {i < step ? <CheckCircle size={20} /> : i + 1}
                 </div>
@@ -231,7 +231,7 @@ const Checkout = () => {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-3 ">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
@@ -331,9 +331,8 @@ const Checkout = () => {
                         type="button"
                         disabled={!available}
                         onClick={() => setPaymentMethod(id)}
-                        className={`flex items-center gap-4 p-5 rounded-3xl border-2 transition-all text-left ${
-                          isSelected ? "border-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent bg-gray-50 dark:bg-gray-900/50"
-                        } ${!available ? "opacity-50 cursor-not-allowed" : "hover:border-gray-200"}`}
+                        className={`flex items-center gap-4 p-5 rounded-3xl border-2 transition-all text-left ${isSelected ? "border-blue-600 bg-blue-50/50 dark:bg-blue-900/20" : "border-transparent bg-gray-50 dark:bg-gray-900/50"
+                          } ${!available ? "opacity-50 cursor-not-allowed" : "hover:border-gray-200"}`}
                       >
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-400"}`}>
                           <Icon size={22} />
@@ -381,8 +380,8 @@ const Checkout = () => {
             )}
           </AnimatePresence>
 
-          {/* Navigation Actions */}
-          <div className="flex flex-col-reverse sm:flex-row gap-4 pt-4">
+          {/* Desktop Navigation Actions */}
+          <div className="hidden sm:flex flex-col-reverse sm:flex-row gap-4 pt-4">
             {step > 0 && (
               <button
                 onClick={() => setStep((s) => s - 1)}
@@ -394,9 +393,8 @@ const Checkout = () => {
             <button
               onClick={step < STEPS.length - 1 ? handleNext : handlePlaceOrder}
               disabled={submitting}
-              className={`w-full sm:flex-[2] py-5 rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${
-                step === 2 ? "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20" : "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20"
-              }`}
+              className={`w-full sm:flex-[2] py-5 rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${step === 2 ? "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20" : "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+                }`}
             >
               {submitting ? <Loader2 size={18} className="animate-spin" /> : step === 2 ? "Place Order" : "Continue"}
               {step < 2 && !submitting && <ArrowRight size={18} />}
@@ -437,7 +435,32 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Sticky Navigation Actions */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 p-4">
+        <div className="flex flex-col-reverse gap-4">
+          {step > 0 && (
+            <button
+              onClick={() => setStep((s) => s - 1)}
+              className="w-full py-4 rounded-2xl border-2 border-gray-100 dark:border-white/5 text-gray-500 font-black uppercase tracking-widest text-[10px] active:scale-[0.98] transition-all"
+            >
+              Back
+            </button>
+          )}
+          <button
+            onClick={step < STEPS.length - 1 ? handleNext : handlePlaceOrder}
+            disabled={submitting}
+            className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${step === 2 ? "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20" : "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+              }`}
+          >
+            {submitting ? <Loader2 size={18} className="animate-spin" /> : step === 2 ? "Place Order" : "Continue"}
+            {step < 2 && !submitting && <ArrowRight size={18} />}
+          </button>
+        </div>
+      </div>
+      {/* Spacer for sticky mobile button */}
+      <div className="h-44 sm:hidden" />
+    </div >
   );
 };
 

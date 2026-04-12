@@ -174,6 +174,12 @@ const Navbar = () => {
 
             {/* Mobile Menu Toggle */}
             <div className="flex items-center gap-2 md:hidden">
+              {userInfo?.isAdmin && (
+                <Link to="/admin/products"
+                  className="text-[10px] font-black bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1.5 rounded-lg hover:bg-blue-200 transition-colors mr-1">
+                  ADMIN
+                </Link>
+              )}
               <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400" aria-label="Toggle theme">
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
@@ -197,7 +203,11 @@ const Navbar = () => {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            style={{ originY: 0 }}
             className="fixed inset-x-3 top-20 z-40 md:hidden glass premium-shadow rounded-2xl p-6">
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
@@ -206,7 +216,7 @@ const Navbar = () => {
               </Link>
               <Link to="/products" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}>
-                <Speaker size={18}/>Products
+                <Speaker size={18} />Products
               </Link>
               <Link to="/cart" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}>
@@ -222,6 +232,12 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}>
                     <Package size={16} /> My Orders
                   </Link>
+                  {userInfo.isAdmin && (
+                    <Link to="/admin/products" className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-2"
+                      onClick={() => setIsMobileMenuOpen(false)}>
+                      <Settings size={16} /> Admin Panel
+                    </Link>
+                  )}
                   <button onClick={() => { setIsLogoutModalOpen(true); setIsMobileMenuOpen(false); }}
                     className="text-red-500 font-bold text-left flex items-center gap-2">
                     <LogOut size={16} /> Logout

@@ -211,15 +211,18 @@ const Cart = () => {
 
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleCheckout}
-              className="w-full px-2 bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 text-white py-4 rounded-2xl font-semibold text-lg hover:shadow-xl  transition-all flex items-center justify-center gap-3"
-            >
-              Proceed to Checkout
-              <ArrowRight size={15} />
-            </motion.button>
+            {/* Desktop only Proceed button */}
+            <div className="hidden sm:block mt-8">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleCheckout}
+                className="w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              >
+                Proceed to Checkout
+                <ArrowRight size={18} />
+              </motion.button>
+            </div>
 
             {!userInfo && (
               <div className="mt-6 flex gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
@@ -236,7 +239,6 @@ const Cart = () => {
           </div>
         </div>
       </div>
-
       <ConfirmationModal
         isOpen={modalConfig.isOpen}
         onClose={closeConfirmation}
@@ -244,6 +246,18 @@ const Cart = () => {
         title={modalConfig.title}
         message={modalConfig.message}
       />
+
+      {/* Mobile Sticky Proceed button */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 p-4">
+        <button
+          onClick={handleCheckout}
+          className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+        >
+          Proceed to Checkout
+          <ArrowRight size={18} />
+        </button>
+      </div>
+      <div className="h-24 sm:hidden" />
     </div>
   );
 };

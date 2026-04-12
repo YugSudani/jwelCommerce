@@ -24,6 +24,7 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
+  const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => { fetchOrders(); }, []);
 
@@ -72,6 +73,23 @@ const AdminOrders = () => {
     return idx < STATUS_FLOW.length - 2 ? STATUS_FLOW[idx + 1] : null; // -2 because cancelled is not in the linear flow
   };
 
+  const getStats = () => ({
+    all: orders.length,
+    unpaid: orders.filter(o => !o.isPaid && o.orderStatus !== 'cancelled').length,
+    pending: orders.filter(o => o.orderStatus === 'pending').length,
+    completed: orders.filter(o => o.orderStatus === 'delivered' && o.isPaid).length,
+  });
+
+  const stats = getStats();
+
+  const filteredOrders = orders.filter(o => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'unpaid') return !o.isPaid && o.orderStatus !== 'cancelled';
+    if (activeFilter === 'pending') return o.orderStatus === 'pending';
+    if (activeFilter === 'completed') return o.orderStatus === 'delivered' && o.isPaid;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-40">
@@ -82,7 +100,7 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-4 py-1 space-y-3">
       {/* Header with Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -99,15 +117,39 @@ const AdminOrders = () => {
         </button>
       </div>
 
+      {/* Stats / Filters */}
+      <div className="flex flex-wrap items-center gap-2 pb-2 overflow-x-auto no-scrollbar">
+        {[
+          { id: 'all', label: 'All Orders', count: stats.all, color: 'blue' },
+          { id: 'unpaid', label: 'Unpaid', count: stats.unpaid, color: 'red' },
+          { id: 'pending', label: 'Pending', count: stats.pending, color: 'yellow' },
+          { id: 'completed', label: 'Completed', count: stats.completed, color: 'green' },
+        ].map(filter => (
+          <button
+            key={filter.id}
+            onClick={() => setActiveFilter(filter.id)}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border whitespace-nowrap ${activeFilter === filter.id
+              ? `bg-${filter.color}-600 border-${filter.color}-600 text-white `
+              : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-white/5 text-gray-500 dark:text-gray-400 hover:border-gray-300'
+              }`}
+          >
+            {filter.label}
+            <span className={`px-2 py-0.5 rounded-lg text-[10px] ${activeFilter === filter.id ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-800'}`}>
+              {filter.count}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Orders */}
       <div className="space-y-4">
-        {orders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <div className="glass dark:bg-gray-800 rounded-3xl p-16 text-center border border-dashed border-gray-200 dark:border-gray-700">
             <ShoppingBag size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-            <p className="text-gray-400 font-bold">No orders yet.</p>
+            <p className="text-gray-400 font-bold">No {activeFilter !== 'all' ? activeFilter : ''} orders found.</p>
           </div>
         ) : (
-          orders.map((order) => {
+          filteredOrders.map((order) => {
             const status = order.orderStatus || (order.isDelivered ? 'delivered' : 'pending');
             const statusStyle = getStatusStyle(status);
             const nextStatus = getNextStatus(status);
@@ -169,7 +211,7 @@ const AdminOrders = () => {
                       </button>
                     )}
                     {/* Admin cancel button — for pending/accepted */}
-                    {['pending', 'accepted'].includes(status) && (
+                    {/* {['pending', 'accepted'].includes(status) && (
                       <button
                         onClick={() => updateStatus(order._id, 'cancelled')}
                         disabled={!!isUpdating}
@@ -177,7 +219,7 @@ const AdminOrders = () => {
                       >
                         {isUpdating === 'cancelled' ? 'Cancelling...' : 'Cancel Order'}
                       </button>
-                    )}
+                    )} */}
                     {/* Mark Payment Received — for COD delivered orders */}
                     {!nextStatus && !order.isPaid && order.paymentMethod === 'COD' && (
                       <button

@@ -4,6 +4,7 @@ import { Package, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BackButton from '../components/BackButton';
 import { toast } from 'react-hot-toast';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const STATUS_FLOW = [
   { key: 'pending', label: 'Pending', shortLabel: 'Placed' },
@@ -84,6 +85,8 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -100,7 +103,6 @@ const Orders = () => {
   }, []);
 
   const handleCancel = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) return;
     setCancelling((prev) => ({ ...prev, [orderId]: true }));
     try {
       const { data } = await API.put(`/orders/${orderId}/cancel`);
@@ -110,7 +112,14 @@ const Orders = () => {
       toast.error(err.response?.data?.message || 'Could not cancel order');
     } finally {
       setCancelling((prev) => ({ ...prev, [orderId]: false }));
+      setIsModalOpen(false);
+      setOrderToCancel(null);
     }
+  };
+
+  const openCancelModal = (orderId) => {
+    setOrderToCancel(orderId);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -191,9 +200,9 @@ const Orders = () => {
                     {/* Cancel button — only if pending or accepted */}
                     {canCancel && (
                       <button
-                        onClick={() => handleCancel(order._id)}
+                        onClick={() => openCancelModal(order._id)}
                         disabled={cancelling[order._id]}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 border border-red-200 dark:border-red-900/40"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-red-600 dark:text-red-400 text-[8px] font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 border border-red-200 dark:border-red-900/40"
                       >
                         <XCircle size={12} />
                         {cancelling[order._id] ? 'Cancelling...' : 'Cancel Order'}
@@ -226,6 +235,16 @@ const Orders = () => {
           })}
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setOrderToCancel(null); }}
+        onConfirm={() => handleCancel(orderToCancel)}
+        title="Cancel Order?"
+        message="Are you sure you want to cancel this order? "
+        confirmText={cancelling[orderToCancel] ? "Cancelling..." : "Confirm Cancellation"}
+        type="danger"
+      />
     </div>
   );
 };

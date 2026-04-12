@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useLayoutEffect, useCallback } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useCallback, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import HeroCarousel from "../components/HeroCarousel";
 import ProductCard from "../components/ProductCard";
 import { ProductsContext } from "../context/ProductsContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Truck,
   ShieldCheck,
   RotateCcw,
   Loader2,
+  Search,
 } from "lucide-react";
 
 const Home = () => {
@@ -21,6 +22,9 @@ const Home = () => {
     saveScrollPosition,
     restoreScrollPosition
   } = useContext(ProductsContext);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     fetchHomeProducts();
@@ -54,6 +58,72 @@ const Home = () => {
     <div className="max-w-8xl mx-auto px-2 py-0">
       {/* ── Hero Carousel ───────────────────────────────────── */}
       <HeroCarousel />
+
+      {/* ── Search Bar Section ──────────────────────────────── */}
+      <section className="mt-8 mb-12">
+        <div className="relative max-w-2xl mx-auto">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="Search premium jewelry..."
+              value={searchQuery}
+              onChange={(e) => {
+                const q = e.target.value;
+                setSearchQuery(q);
+                if (q.trim()) {
+                  const filtered = homeProducts.filter(p =>
+                    p.name.toLowerCase().includes(q.toLowerCase()) ||
+                    p.category.toLowerCase().includes(q.toLowerCase())
+                  ).slice(0, 5);
+                  setSuggestions(filtered);
+                } else {
+                  setSuggestions([]);
+                }
+              }}
+              className="w-full bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-white/5 rounded-3xl py-5 pl-14 pr-6 text-lg font-bold text-gray-900 dark:text-white premium-shadow focus:border-blue-600 outline-none transition-all"
+            />
+          </div>
+
+          <AnimatePresence>
+            {suggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute z-20 left-0 right-0 mt-3 glass dark:bg-gray-800 rounded-3xl overflow-hidden premium-shadow border border-white/40 dark:border-white/10"
+              >
+                <div className="p-2 space-y-1">
+                  {suggestions.map((p) => (
+                    <Link
+                      key={p._id}
+                      to={`/product/${p._id}`}
+                      className="flex items-center gap-4 p-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group"
+                    >
+                      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-white/5">
+                        <img src={p.image} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black text-gray-900 dark:text-white text-sm truncate uppercase tracking-tight">
+                          {p.name}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{p.category}</p>
+                      </div>
+                      <p className="font-black text-blue-600 dark:text-blue-400">₹{p.price}</p>
+                    </Link>
+                  ))}
+                  <Link
+                    to="/products"
+                    className="block text-center py-3 text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    View All Results
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
 
       {/* ── Featured Products ───────────────────────────────── */}
       <section className="mb-16">

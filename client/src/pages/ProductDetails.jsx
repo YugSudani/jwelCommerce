@@ -137,8 +137,8 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          <div className="glass dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-8">
-            <div className="flex items-center sm:items-end justify-between mb-8 gap-4">
+          <div className="glass dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-6 sm:mb-8">
+            <div className="flex items-center sm:items-end justify-between gap-4">
               <div>
                 <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-1">Price</p>
                 <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
@@ -160,12 +160,15 @@ const ProductDetails = () => {
                 </div>
               )}
             </div>
+          </div>
 
+          {/* Desktop only Add to Cart button */}
+          <div className="hidden sm:block">
             <button
               onClick={handleAddToCart}
               disabled={product.countInStock === 0}
-              className={`w-full py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 ${product.countInStock > 0
-                ? 'bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 text-white active:scale-[0.98]'
+              className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-white transition-all flex items-center justify-center gap-3 ${product.countInStock > 0
+                ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98]'
                 : 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
                 }`}
             >
@@ -188,9 +191,27 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Sticky Add to Cart button */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 p-4">
+        <button
+          onClick={handleAddToCart}
+          disabled={product.countInStock === 0}
+          className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm text-white transition-all flex items-center justify-center gap-3 ${product.countInStock > 0
+            ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98]'
+            : 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+            }`}
+        >
+          Add To Cart
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </div>
+      {/* Spacer for sticky mobile button */}
+      <div className="h-40 sm:hidden" />
     </div>
   );
 };
-
 
 export default ProductDetails;
