@@ -69,11 +69,11 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 overflow-hidden">
+    <div className="max-w-6xl mx-auto px-4 py-1 overflow-hidden">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+        className="flex items-center gap-2 mb-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
       >
         <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -168,7 +168,7 @@ const ProductDetails = () => {
               onClick={handleAddToCart}
               disabled={product.countInStock === 0}
               className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-sm text-white transition-all flex items-center justify-center gap-3 ${product.countInStock > 0
-                ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98]'
+                ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'
                 : 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
                 }`}
             >
@@ -179,10 +179,10 @@ const ProductDetails = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:mt-3">
             <div className="p-4 rounded-3xl border border-gray-100 dark:border-white/5 text-center">
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Authenticity</p>
-              <p className="font-bold text-gray-900 dark:text-gray-200">100% Guaranteed</p>
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Satisfication</p>
+              <p className="font-bold text-gray-900 dark:text-gray-200">Guaranteed</p>
             </div>
             <div className="p-4 rounded-3xl border border-gray-100 dark:border-white/5 text-center">
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Luxurious Items</p>
