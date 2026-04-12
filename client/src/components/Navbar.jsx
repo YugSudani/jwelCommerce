@@ -174,12 +174,6 @@ const Navbar = () => {
 
             {/* Mobile Menu Toggle */}
             <div className="flex items-center gap-2 md:hidden">
-              {userInfo?.isAdmin && (
-                <Link to="/admin/products"
-                  className="text-[10px] font-black bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1.5 rounded-lg hover:bg-blue-200 transition-colors mr-1">
-                  ADMIN
-                </Link>
-              )}
               <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400" aria-label="Toggle theme">
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
@@ -208,7 +202,8 @@ const Navbar = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             style={{ originY: 0 }}
-            className="fixed inset-x-3 top-20 z-40 md:hidden glass premium-shadow rounded-2xl p-6">
+            //fixed blur background
+            className="fixed inset-x-3 top-20 z-40 md:hidden backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6">
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}>

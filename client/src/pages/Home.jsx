@@ -55,12 +55,12 @@ const Home = () => {
   const loading = homeLoading;
 
   return (
-    <div className="max-w-8xl mx-auto px-2 py-0">
+    <div className="max-w-8xl mx-auto px-2 py-0 ">
       {/* ── Hero Carousel ───────────────────────────────────── */}
       <HeroCarousel />
 
       {/* ── Search Bar Section ──────────────────────────────── */}
-      <section className="mt-8 mb-12">
+      <section className="mt-8 mb-3">
         <div className="relative max-w-2xl mx-auto">
           <div className="relative group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
@@ -81,7 +81,7 @@ const Home = () => {
                   setSuggestions([]);
                 }
               }}
-              className="w-full bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-white/5 rounded-3xl py-5 pl-14 pr-6 text-lg font-bold text-gray-900 dark:text-white premium-shadow focus:border-blue-600 outline-none transition-all"
+              className="w-full bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-white/5 rounded-[10px] py-1 pl-14 pr-6 text-lg font-bold text-gray-900 dark:text-white premium-shadow focus:border-blue-600 outline-none transition-all"
             />
           </div>
 

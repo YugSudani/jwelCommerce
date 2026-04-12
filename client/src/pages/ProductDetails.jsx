@@ -69,7 +69,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-1 overflow-hidden">
+    <div className="max-w-6xl mx-auto px-  ">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
