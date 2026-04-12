@@ -100,7 +100,7 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto px-4 py-1 space-y-3">
+    <div className="max-w-8xl mx-auto px-1 py-0 space-y-4">
       {/* Header with Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

@@ -8,9 +8,9 @@ import {
   ArrowRight,
   Truck,
   ShieldCheck,
-  RotateCcw,
   Loader2,
   Search,
+  Headphones,
 } from "lucide-react";
 
 const Home = () => {
@@ -225,18 +225,18 @@ const Home = () => {
           {[
             {
               icon: Truck,
-              title: "Free Shipping",
-              desc: "On all orders above $49. Fast & reliable worldwide delivery.",
+              title: "Fast & Secure Shipping",
+              desc: "Enjoy fast and secure shipping on all orders. Fast, reliable delivery you can count on.",
             },
             {
               icon: ShieldCheck,
               title: "Secure Checkout",
-              desc: "256-bit SSL encryption. Your data is always safe with us.",
+              desc: "Shop with confidence using 256-bit SSL encryption. Your data is always protected.",
             },
             {
-              icon: RotateCcw,
-              title: "30-Day Returns",
-              desc: "Changed your mind? Easy, hassle-free returns guaranteed.",
+              icon: Headphones,
+              title: "24/7 Support",
+              desc: "Our team is here for you anytime. Quick, friendly support whenever you need help.",
             },
           ].map((f, i) => (
             <motion.div
