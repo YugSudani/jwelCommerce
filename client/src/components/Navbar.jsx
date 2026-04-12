@@ -115,7 +115,7 @@ const Navbar = () => {
                         onClick={() => setIsProfileOpen(!isProfileOpen)}
                         className="flex items-center gap-2 group"
                       >
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md group-hover:shadow-blue-500/30 transition-all">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm transition-all">
                           {userInfo.name.charAt(0).toUpperCase()}
                         </div>
                         <span className="font-bold text-gray-800 dark:text-gray-200 hidden lg:block text-sm">

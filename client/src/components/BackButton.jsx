@@ -5,7 +5,7 @@ const BackButton = ({ className = '' }) => {
     return (
         <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 mb-6 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group ${className}`}
+            className={`flex items-center gap-2 mb-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group ${className}`}
         >
             <svg
                 className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"

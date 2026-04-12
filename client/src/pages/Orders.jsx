@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { Package, CheckCircle } from 'lucide-react';
+import { Package, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BackButton from '../components/BackButton';
+import { toast } from 'react-hot-toast';
 
 const STATUS_FLOW = [
   { key: 'pending', label: 'Pending', shortLabel: 'Placed' },
@@ -20,9 +21,19 @@ const STATUS_STYLES = {
   inProcess: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400', label: 'In Process' },
   outForDelivery: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-400', label: 'Out for Delivery' },
   delivered: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400', label: 'Delivered' },
+  cancelled: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', label: 'Cancelled' },
 };
 
 const StatusTrail = ({ orderStatus }) => {
+  if (orderStatus === 'cancelled') {
+    return (
+      <div className="flex items-center gap-2 pt-4 text-red-500 dark:text-red-400">
+        <XCircle size={18} />
+        <span className="text-sm font-black uppercase tracking-wide">Order Cancelled</span>
+      </div>
+    );
+  }
+
   const status = orderStatus || 'pending';
   const currentIdx = STATUS_INDEX[status] ?? 0;
 
@@ -39,10 +50,10 @@ const StatusTrail = ({ orderStatus }) => {
                 initial={{ scale: 0.8 }}
                 animate={{ scale: active ? 1.15 : 1 }}
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black border-2 transition-all duration-500 ${done
-                    ? 'bg-green-500 border-green-500 text-white shadow-md shadow-green-400/30'
-                    : active
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/30 ring-4 ring-blue-500/20'
-                      : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'
+                  ? 'bg-green-500 border-green-500 text-white shadow-md shadow-green-400/30'
+                  : active
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/30 ring-4 ring-blue-500/20'
+                    : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'
                   }`}
               >
                 {done ? <CheckCircle size={13} strokeWidth={2.5} /> : i + 1}
@@ -72,6 +83,7 @@ const StatusTrail = ({ orderStatus }) => {
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState({});
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -87,6 +99,20 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  const handleCancel = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    setCancelling((prev) => ({ ...prev, [orderId]: true }));
+    try {
+      const { data } = await API.put(`/orders/${orderId}/cancel`);
+      setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, orderStatus: data.orderStatus } : o));
+      toast.success('Order cancelled. Stock has been restored.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not cancel order');
+    } finally {
+      setCancelling((prev) => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-40 gap-4">
@@ -97,28 +123,29 @@ const Orders = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto px-4 py-10">
+    <div className="max-w-8xl mx-auto">
       <BackButton />
-      <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-10 tracking-tight">My Orders</h2>
+      <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">My Orders</h2>
       {orders.length === 0 ? (
         <div className="glass dark:bg-gray-800 p-20 rounded-[2.5rem] text-center border border-dashed border-gray-200 dark:border-gray-700">
           <Package size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-6" />
           <p className="text-gray-500 dark:text-gray-400 font-bold text-lg">No orders placed yet.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {orders.map((order) => {
             const status = order.orderStatus || (order.isDelivered ? 'delivered' : 'pending');
             const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
+            const canCancel = ['pending', 'accepted'].includes(status);
             return (
               <motion.div
                 key={order._id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass dark:bg-gray-900 rounded-[2rem] border border-white/40 dark:border-white/5 premium-shadow overflow-hidden"
+                className={`glass dark:bg-gray-900 rounded-[2rem] border premium-shadow overflow-hidden ${status === 'cancelled' ? 'border-red-200 dark:border-red-900/30' : 'border-white/40 dark:border-white/5'}`}
               >
                 {/* Order Header */}
-                <div className="flex flex-wrap items-center justify-between gap-4 p-5 pb-4 border-b border-gray-100 dark:border-white/5">
+                <div className="flex flex-wrap items-center justify-between gap-4 p-3 pb-2 border-b border-gray-100 dark:border-white/5">
                   <div className="flex items-center gap-4">
                     {/* Product images */}
                     <div className="flex -space-x-3">
@@ -152,14 +179,26 @@ const Orders = () => {
                         Paid
                       </span>
                     ) : (
-                      <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider">
-                        Cash on Delivery
+                      <span className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                        Unpaid — {order.paymentMethod}
                       </span>
                     )}
                     <span className={`${style.bg} ${style.text} px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider`}>
                       {style.label}
                     </span>
                     <span className="text-xl font-black text-blue-600 dark:text-blue-400">₹{order.totalPrice.toFixed(2)}</span>
+
+                    {/* Cancel button — only if pending or accepted */}
+                    {canCancel && (
+                      <button
+                        onClick={() => handleCancel(order._id)}
+                        disabled={cancelling[order._id]}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 border border-red-200 dark:border-red-900/40"
+                      >
+                        <XCircle size={12} />
+                        {cancelling[order._id] ? 'Cancelling...' : 'Cancel Order'}
+                      </button>
+                    )}
                   </div>
                 </div>
 

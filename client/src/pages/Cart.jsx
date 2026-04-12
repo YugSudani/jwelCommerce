@@ -93,16 +93,16 @@ const Cart = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto px-4 pb-20 pt-2">
+    <div className="max-w-8xl mx-auto px-1  ">
       <BackButton />
-      <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mb-10 tracking-tight">
+      <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
         Shopping Bag
       </h2>
 
 
-      <div className="grid lg:grid-cols-3 gap-12">
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Items List */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-3">
           <AnimatePresence mode="popLayout">
             {cartItems.map((item) => (
               <motion.div
@@ -111,10 +111,10 @@ const Cart = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 key={item.product._id}
-                className="glass dark:bg-gray-800 p-6 rounded-3xl premium-shadow border border-white/40 dark:border-white/5 flex flex-col sm:flex-row items-center gap-6"
+                className="glass dark:bg-gray-800 p-4 rounded-3xl premium-shadow border border-white/40 dark:border-white/5 flex flex-col sm:flex-row items-center gap-6"
 
               >
-                <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0">
+                <div className="w-full h-40 sm:h-36 sm:w-36 rounded-2xl overflow-hidden flex-shrink-0">
                   <img
                     src={item.product.image}
                     alt={item.product.name}

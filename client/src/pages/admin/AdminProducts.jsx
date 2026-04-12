@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
-import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight } from 'lucide-react';
+import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
@@ -38,6 +38,7 @@ const AdminProducts = () => {
   const [uploadMode, setUploadMode] = useState('url'); // 'url' | 'file'
   const [uploadedPreviews, setUploadedPreviews] = useState([]);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, onConfirm: () => { }, title: '', message: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -54,6 +55,16 @@ const AdminProducts = () => {
       setLoading(false);
     }
   };
+
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) =>
+      p.name?.toLowerCase().includes(q) ||
+      p.brand?.toLowerCase().includes(q) ||
+      p.category?.toLowerCase().includes(q)
+    );
+  }, [products, searchQuery]);
 
   const resetForm = () => {
     setFormData(emptyForm);
@@ -72,6 +83,7 @@ const AdminProducts = () => {
   };
 
   const openEditForm = (product) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const productImages = getProductImages(product);
     setFormData({
       name: product.name || '',
@@ -322,6 +334,23 @@ const AdminProducts = () => {
         </motion.div>
       )}
 
+      {/* Search bar */}
+      <div className="relative w-full md:max-w-sm">
+        <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by name, brand, category…"
+          className="w-full pl-10 pr-10 py-3 rounded-2xl border border-gray-200 dark:border-white/5 bg-white dark:bg-gray-800 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+        />
+        {searchQuery && (
+          <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <X size={15} />
+          </button>
+        )}
+      </div>
+
       {/* Product Table */}
       <div className="glass dark:bg-gray-800 rounded-[2.5rem] overflow-hidden premium-shadow border border-white/40 dark:border-white/5">
         <div className="overflow-x-auto">
@@ -337,7 +366,13 @@ const AdminProducts = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-              {products.map((product) => {
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-8 py-16 text-center text-gray-400 font-bold">
+                    No products match &ldquo;{searchQuery}&rdquo;
+                  </td>
+                </tr>
+              ) : filteredProducts.map((product) => {
                 const productImages = getProductImages(product);
                 return (
                   <tr key={product._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors">
@@ -356,10 +391,10 @@ const AdminProducts = () => {
                     <td className="px-8 py-5 text-sm font-black text-blue-600 dark:text-blue-400">₹{product.price}</td>
                     <td className="px-8 py-5">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${product.countInStock > 10
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                          : product.countInStock > 0
-                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : product.countInStock > 0
+                          ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                         }`}>
                         {product.countInStock} In Stock
                       </span>

@@ -11,6 +11,7 @@ const STATUS_FLOW = [
   { key: 'inProcess', label: 'In Process', color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' },
   { key: 'outForDelivery', label: 'Out for Delivery', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' },
   { key: 'delivered', label: 'Delivered', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' },
+  { key: 'cancelled', label: 'Cancelled', color: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' },
 ];
 
 const STATUS_INDEX = STATUS_FLOW.reduce((acc, s, i) => ({ ...acc, [s.key]: i }), {});
@@ -66,8 +67,9 @@ const AdminOrders = () => {
 
 
   const getNextStatus = (currentStatus) => {
+    if (currentStatus === 'cancelled') return null;
     const idx = STATUS_INDEX[currentStatus] ?? 0;
-    return idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
+    return idx < STATUS_FLOW.length - 2 ? STATUS_FLOW[idx + 1] : null; // -2 because cancelled is not in the linear flow
   };
 
   if (loading) {
@@ -148,15 +150,15 @@ const AdminOrders = () => {
                         <CheckCircle size={10} /> Paid
                       </span>
                     ) : (
-                      <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider">
-                        COD — Unpaid
+                      <span className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                        Unpaid — {order.paymentMethod}
                       </span>
                     )}
                     <span className={`${statusStyle.color} px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider`}>
                       {statusStyle.label}
                     </span>
                     <span className="text-lg font-black text-blue-600 dark:text-blue-400">₹{order.totalPrice.toFixed(2)}</span>
-                    {nextStatus && (
+                    {nextStatus && status !== 'cancelled' && (
                       <button
                         onClick={() => updateStatus(order._id, nextStatus.key)}
                         disabled={!!isUpdating}
@@ -164,6 +166,16 @@ const AdminOrders = () => {
                       >
                         {isUpdating === nextStatus.key ? 'Updating...' : `Mark as ${nextStatus.label}`}
                         <ChevronRight size={12} />
+                      </button>
+                    )}
+                    {/* Admin cancel button — for pending/accepted */}
+                    {['pending', 'accepted'].includes(status) && (
+                      <button
+                        onClick={() => updateStatus(order._id, 'cancelled')}
+                        disabled={!!isUpdating}
+                        className="flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/40 px-4 py-2 rounded-xl text-xs font-black hover:bg-red-600 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                      >
+                        {isUpdating === 'cancelled' ? 'Cancelling...' : 'Cancel Order'}
                       </button>
                     )}
                     {/* Mark Payment Received — for COD delivered orders */}
@@ -229,26 +241,33 @@ const AdminOrders = () => {
                   </div>
                 </div>
 
-                {/* Status Timeline */}
-                <div className="flex items-center gap-0 px-5 pb-5 overflow-x-auto">
-                  {STATUS_FLOW.map((s, i) => {
-                    const currentIdx = STATUS_INDEX[status] ?? 0;
-                    const done = i <= currentIdx;
-                    return (
-                      <React.Fragment key={s.key}>
-                        <div className="flex flex-col items-center gap-1 min-w-[60px]">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${done ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}>
-                            {i + 1}
+                {/* Status Timeline — hidden for cancelled */}
+                {status !== 'cancelled' ? (
+                  <div className="flex items-center gap-0 px-5 pb-5 overflow-x-auto">
+                    {STATUS_FLOW.filter(s => s.key !== 'cancelled').map((s, i) => {
+                      const currentIdx = STATUS_INDEX[status] ?? 0;
+                      const done = i <= currentIdx;
+                      return (
+                        <React.Fragment key={s.key}>
+                          <div className="flex flex-col items-center gap-1 min-w-[60px]">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${done ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}>
+                              {i + 1}
+                            </div>
+                            <span className={`text-[9px] font-black uppercase tracking-wide ${done ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}>{s.label}</span>
                           </div>
-                          <span className={`text-[9px] font-black uppercase tracking-wide ${done ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}>{s.label}</span>
-                        </div>
-                        {i < STATUS_FLOW.length - 1 && (
-                          <div className={`flex-1 h-0.5 mb-4 ${i < currentIdx ? 'bg-blue-600' : 'bg-gray-100 dark:bg-gray-800'}`} />
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
+                          {i < STATUS_FLOW.filter(s => s.key !== 'cancelled').length - 1 && (
+                            <div className={`flex-1 h-0.5 mb-4 ${i < currentIdx ? 'bg-blue-600' : 'bg-gray-100 dark:bg-gray-800'}`} />
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="px-5 pb-5 flex items-center gap-2 text-red-500 dark:text-red-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                    <span className="text-sm font-black">Order Cancelled</span>
+                  </div>
+                )}
               </div>
             );
           })

@@ -69,7 +69,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto px-4 py-4">
+    <div className="max-w-7xl mx-auto px-4 py-4 overflow-hidden">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -81,7 +81,7 @@ const ProductDetails = () => {
         Back
       </button>
 
-      <div className="grid lg:grid-cols-2 gap-16 items-start">
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         {/* Left: Images */}
         <div className="space-y-6 sm:sticky  top-32">
           <div className="glass dark:bg-gray-800 rounded-[2.5rem] overflow-hidden premium-shadow border border-white/40 dark:border-white/5 bg-white">
@@ -98,7 +98,7 @@ const ProductDetails = () => {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(image)}
-                  className={`flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 m-2 transition-all ${selectedImage === image ? 'border-blue-600 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                  className={`flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 m-1 sm:m-2 transition-all ${selectedImage === image ? 'border-blue-600 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                 >
                   <img src={image} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
@@ -137,8 +137,8 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          <div className="glass dark:bg-gray-800 p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-8">
-            <div className="flex items-end justify-between mb-8">
+          <div className="glass dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-8">
+            <div className="flex items-center sm:items-end justify-between mb-8 gap-4">
               <div>
                 <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-1">Price</p>
                 <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
