@@ -17,27 +17,24 @@ import 'swiper/css/effect-fade';
 const slides = [
   {
     image: banner_1,
-    title: 'Timeless Precision',
-    subtitle: 'New Arrivals 2025',
-    description: 'Experience the pinnacle of craftsmanship with our curated selection of premium products.',
-    buttonText: 'Shop Now',
-    link: '/products',
+    title: 'Elevate Everyday',
+  subtitle: 'Curated Essentials',
+  description: 'Handpicked products that blend quality, style, and functionality for modern living.',
+  link: '/products',
   },
   {
     image: banner_3,
-    title: 'Next-Gen Tech',
-    subtitle: 'Electronics & Gadgets',
-    description: 'Discover the latest gadgets designed to simplify and elevate your digital lifestyle.',
-    buttonText: 'Explore Gadgets',
-    link: '/products',
+   title: 'What’s Trending Now',
+  subtitle: 'Hot Picks & Bestsellers',
+  description: 'Stay ahead of the curve with our most popular and fast-selling items.',
+  link: '/products',
   },
   {
     image: banner_2,
-    title: 'Style Redefined',
-    subtitle: 'Fashion & Lifestyle',
-    description: 'From everyday essentials to luxury finds — shop the collection everyone is talking about.',
-    buttonText: 'View Collection',
-    link: '/products',
+     title: 'Less But Better',
+  subtitle: 'Minimal Collection',
+  description: 'Simple designs, powerful impact — essentials that never go out of style.',
+  link: '/products',
   },
 ];
 
@@ -73,7 +70,7 @@ const SlideContent = ({ slide, index }) => (
         {slide.description}
       </motion.p>
 
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.44, duration: 0.4 }}
@@ -86,7 +83,7 @@ const SlideContent = ({ slide, index }) => (
           {slide.buttonText}
           <ArrowRight size={16} className="md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
         </Link>
-      </motion.div>
+      </motion.div> */}
     </div>
   </div>
 );
