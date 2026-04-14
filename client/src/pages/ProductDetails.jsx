@@ -4,6 +4,7 @@ import API from '../api/axios';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import BackButton from '../components/BackButton';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -71,15 +72,7 @@ const ProductDetails = () => {
   return (
     <div className="max-w-6xl mx-auto px-  ">
       {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-      >
-        <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back
-      </button>
+      <BackButton />
 
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         {/* Left: Images */}

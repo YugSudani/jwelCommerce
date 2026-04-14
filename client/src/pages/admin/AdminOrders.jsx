@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
 import { LayoutGrid, ShoppingBag, ChevronRight, Phone, MapPin, Package, Banknote, CheckCircle } from 'lucide-react';
+import DetailModal from '../../components/DetailModal';
 
 
 const STATUS_FLOW = [
@@ -25,6 +26,8 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
   const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => { fetchOrders(); }, []);
 
@@ -40,7 +43,8 @@ const AdminOrders = () => {
     }
   };
 
-  const updateStatus = async (orderId, newStatus) => {
+  const updateStatus = async (e, orderId, newStatus) => {
+    e.stopPropagation();
     setUpdating((prev) => ({ ...prev, [orderId]: newStatus }));
     try {
       const { data } = await API.put(`/orders/${orderId}/status`, { status: newStatus });
@@ -53,7 +57,8 @@ const AdminOrders = () => {
     }
   };
 
-  const markPaymentReceived = async (orderId) => {
+  const markPaymentReceived = async (e, orderId) => {
+    e.stopPropagation();
     setUpdating((prev) => ({ ...prev, [orderId]: 'pay' }));
     try {
       const { data } = await API.put(`/orders/${orderId}/pay`);
@@ -156,7 +161,10 @@ const AdminOrders = () => {
             const isUpdating = updating[order._id];
 
             return (
-              <div key={order._id} className="glass dark:bg-gray-900 rounded-3xl border border-white/40 dark:border-white/5 premium-shadow overflow-hidden">
+              <div key={order._id}
+                onClick={() => { setSelectedOrder(order); setIsDetailModalOpen(true); }}
+                className="glass dark:bg-gray-900 rounded-3xl border border-white/40 dark:border-white/5 premium-shadow overflow-hidden cursor-pointer active:scale-[0.99] transition-all"
+              >
                 {/* Order Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-b border-gray-100 dark:border-white/5">
                   <div className="flex items-center gap-4">
@@ -202,7 +210,7 @@ const AdminOrders = () => {
                     <span className="text-lg font-black text-blue-600 dark:text-blue-400">₹{order.totalPrice.toFixed(2)}</span>
                     {nextStatus && status !== 'cancelled' && (
                       <button
-                        onClick={() => updateStatus(order._id, nextStatus.key)}
+                        onClick={(e) => updateStatus(e, order._id, nextStatus.key)}
                         disabled={!!isUpdating}
                         className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
                       >
@@ -223,7 +231,7 @@ const AdminOrders = () => {
                     {/* Mark Payment Received — for COD delivered orders */}
                     {!nextStatus && !order.isPaid && order.paymentMethod === 'COD' && (
                       <button
-                        onClick={() => markPaymentReceived(order._id)}
+                        onClick={(e) => markPaymentReceived(e, order._id)}
                         disabled={!!isUpdating}
                         className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 disabled:opacity-50"
                       >
@@ -315,6 +323,13 @@ const AdminOrders = () => {
           })
         )}
       </div>
+
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        data={selectedOrder}
+        type="order"
+      />
     </div>
   );
 };

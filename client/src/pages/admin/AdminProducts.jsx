@@ -2,9 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
-import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight, Search } from 'lucide-react';
+import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight, Search, Shuffle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import DetailModal from '../../components/DetailModal';
 
 const emptyForm = {
   name: '',
@@ -39,8 +40,16 @@ const AdminProducts = () => {
   const [uploadedPreviews, setUploadedPreviews] = useState([]);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, onConfirm: () => { }, title: '', message: '' });
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [sortMode, setSortMode] = useState('recent'); // 'recent' | 'random'
+  const [sortToggling, setSortToggling] = useState(false);
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    fetchProducts();
+    // Load current global sort mode
+    API.get('/settings/sort').then(({ data }) => setSortMode(data.sortMode)).catch(() => { });
+  }, []);
 
   const isEditing = useMemo(() => Boolean(editingProductId), [editingProductId]);
 
@@ -98,6 +107,29 @@ const AdminProducts = () => {
     setUploadedPreviews([]);
     setUploadMode('url');
     setShowForm(true);
+  };
+
+  const openDetailModal = (product) => {
+    setSelectedProduct(product);
+    setIsDetailModalOpen(true);
+  };
+
+  const toggleSortMode = async () => {
+    const next = sortMode === 'recent' ? 'random' : 'recent';
+    setSortToggling(true);
+    try {
+      const { data } = await API.put('/settings/sort', { sortMode: next });
+      setSortMode(data.sortMode);
+      toast.success(
+        data.sortMode === 'random'
+          ? '🔀 Shuffle Suggestions ON — users see a random order'
+          : '📅 Showing newest products first'
+      );
+    } catch {
+      toast.error('Failed to update sort mode');
+    } finally {
+      setSortToggling(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -166,7 +198,8 @@ const AdminProducts = () => {
     }
   };
 
-  const deleteHandler = (id) => {
+  const deleteHandler = (e, id) => {
+    e.stopPropagation();
     setModalConfig({
       isOpen: true,
       title: 'Delete Product?',
@@ -202,6 +235,18 @@ const AdminProducts = () => {
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium text-sm">Manage your catalog, stock, and media.</p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={toggleSortMode}
+            disabled={sortToggling}
+            title={sortMode === 'random' ? 'Random mode ON — click to switch back to newest first' : 'Click to shuffle product suggestions for users'}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm border transition-all active:scale-95 disabled:opacity-50 ${sortMode === 'random'
+                ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700'
+                : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+          >
+            <Shuffle size={16} />
+            {sortMode === 'random' ? 'Shuffle: ON' : 'Shuffle: OFF'}
+          </button>
           <button
             onClick={() => navigate('/admin/orders')}
             className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
@@ -375,7 +420,10 @@ const AdminProducts = () => {
               ) : filteredProducts.map((product) => {
                 const productImages = getProductImages(product);
                 return (
-                  <tr key={product._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors">
+                  <tr key={product._id}
+                    onClick={() => openDetailModal(product)}
+                    className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors cursor-pointer group/row"
+                  >
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
                         <img src={productImages[0]} alt={product.name}
@@ -402,11 +450,11 @@ const AdminProducts = () => {
                     <td className="px-8 py-5 text-sm font-bold text-gray-400 dark:text-gray-500">{productImages.length} Files</td>
                     <td className="px-8 py-5 text-right">
                       <div className="flex items-center justify-end gap-3">
-                        <button onClick={() => openEditForm(product)}
+                        <button onClick={(e) => { e.stopPropagation(); openEditForm(product); }}
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-all">
                           <Edit size={17} />
                         </button>
-                        <button onClick={() => deleteHandler(product._id)}
+                        <button onClick={(e) => deleteHandler(e, product._id)}
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 hover:bg-red-600 hover:text-white transition-all">
                           <Trash2 size={17} />
                         </button>
@@ -426,6 +474,13 @@ const AdminProducts = () => {
         onConfirm={modalConfig.onConfirm}
         title={modalConfig.title}
         message={modalConfig.message}
+      />
+
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        data={selectedProduct}
+        type="product"
       />
     </div>
   );

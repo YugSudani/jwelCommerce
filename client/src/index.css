@@ -48,8 +48,10 @@ h6 {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   transform: translateZ(0);
-  isolation: isolate;        /* add this */
-  will-change: backdrop-filter;  /* add this - hints browser to composite early */
+  isolation: isolate;
+  /* add this */
+  will-change: backdrop-filter;
+  /* add this - hints browser to composite early */
 }
 
 
@@ -100,4 +102,53 @@ input:-webkit-autofill:active {
   box-shadow: 0 0 0px 1000px #1f2937 inset !important;
   -webkit-text-fill-color: #f9fafb !important;
   /* Your light text color */
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+  background-clip: content-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.6);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(71, 85, 105, 0.4) transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import API from '../api/axios';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, Home, MapPin, Save, Package, Loader2, ChevronRight } from 'lucide-react';
+import DetailModal from '../components/DetailModal';
 
 const STATUS_STYLES = {
   pending: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400', label: 'Pending' },
@@ -23,6 +24,8 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const [form, setForm] = useState({
     name: userInfo?.name || '',
@@ -82,7 +85,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4  space-y-5">
+    <div className="max-w-5xl mx-auto px-4  space-y-1">
       <BackButton />
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
@@ -214,7 +217,10 @@ const Profile = () => {
               const status = order.orderStatus || (order.isDelivered ? 'delivered' : 'pending');
               const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
               return (
-                <div key={order._id} className="flex items-center gap-4 p-5 hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors">
+                <div key={order._id}
+                  onClick={() => { setSelectedOrder(order); setIsDetailModalOpen(true); }}
+                  className="flex items-center gap-4 p-5 hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors cursor-pointer active:scale-[0.99]"
+                >
                   {/* Product thumbnails */}
                   <div className="flex -space-x-2 flex-shrink-0">
                     {order.orderItems.slice(0, 3).map((item, i) => (
@@ -238,6 +244,13 @@ const Profile = () => {
           </div>
         )}
       </motion.div>
+
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        data={selectedOrder}
+        type="order"
+      />
     </div>
   );
 };

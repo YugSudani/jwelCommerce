@@ -36,43 +36,54 @@ const sendUserResponse = (res, user, statusCode = 200) => {
 // @desc    Auth user & get token
 // @route   POST /api/users/login
 // @access  Public
-const authUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (user && (await user.matchPassword(password))) {
-    sendUserResponse(res, user);
-  } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+const authUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user && (await user.matchPassword(password))) {
+      sendUserResponse(res, user);
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (err) {
+    next(err);
   }
 };
 
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public
-const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    res.status(400).json({ message: 'User already exists' });
-    return;
-  }
-  const user = await User.create({ name, email, password });
-  if (user) {
-    sendUserResponse(res, user, 201);
-  } else {
-    res.status(400).json({ message: 'Invalid user data' });
+const registerUser = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    const user = await User.create({ name, email, password });
+    if (user) {
+      sendUserResponse(res, user, 201);
+    } else {
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (err) {
+    next(err);
   }
 };
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
-const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (user) {
-    res.json(buildUserPayload(user));
-  } else {
-    res.status(404).json({ message: 'User not found' });
+const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) {
+      res.json(buildUserPayload(user));
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -80,23 +91,28 @@ const getUserProfile = async (req, res) => {
 // @route   PUT /api/users/profile
 // @access  Private
 const updateUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { name, phone, address, city, postalCode, state, country } = req.body;
+
+    user.name = name || user.name;
+    user.phone = phone !== undefined ? phone : user.phone;
+    user.address = address !== undefined ? address : user.address;
+    user.city = city !== undefined ? city : user.city;
+    user.postalCode = postalCode !== undefined ? postalCode : user.postalCode;
+    user.state = state !== undefined ? state : user.state;
+    user.country = country || user.country;
+
+    const updatedUser = await user.save();
+    res.json(buildUserPayload(updatedUser));
+  } catch (err) {
+    console.error('Profile update error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
-
-  const { name, phone, address, city, postalCode, state, country } = req.body;
-
-  user.name = name || user.name;
-  user.phone = phone !== undefined ? phone : user.phone;
-  user.address = address !== undefined ? address : user.address;
-  user.city = city !== undefined ? city : user.city;
-  user.postalCode = postalCode !== undefined ? postalCode : user.postalCode;
-  user.state = state !== undefined ? state : user.state;
-  user.country = country || user.country;
-
-  const updatedUser = await user.save();
-  res.json(buildUserPayload(updatedUser));
 };
 
 const logoutUser = (req, res) => {

@@ -47,7 +47,7 @@ const Navbar = () => {
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 md:px-8 py-4 ${isScrolled ? "top-2" : "top-0"}`}>
-        <div className={`max-w-8xl mx-auto rounded-2xl transition-all duration-500 border ${isScrolled ? "glass premium-shadow px-6 py-3 border-white/20" : "bg-transparent py-4 border-transparent"}`}>
+        <div className={`max-w-8xl mx-auto rounded-2xl transition-all duration-500 border ${isScrolled ? " backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] px-6 py-3 border-white/20" : "bg-transparent py-4 border-transparent"}`}>
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
@@ -131,7 +131,7 @@ const Navbar = () => {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.97 }}
                             transition={{ duration: 0.15 }}
-                            className="absolute right-0 mt-3 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50"
+                            className="absolute right-0 mt-3 w-52 backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50"
                           >
                             <div className="px-4 py-3 border-b border-gray-50 dark:border-white/5">
                               <p className="font-black text-gray-900 dark:text-white text-sm">{userInfo.name}</p>
@@ -177,11 +177,17 @@ const Navbar = () => {
               <button onClick={toggleTheme} className="p-2 text-gray-600 dark:text-gray-400" aria-label="Toggle theme">
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <button className="p-2 text-gray-600 dark:text-gray-400" aria-label="Toggle theme">
-                <Link to="/cart" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
+              <button className="relative p-2 text-gray-600 dark:text-gray-400" aria-label="Toggle theme">
+                <Link to="/cart" className=" text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
                   onClick={() => setIsMobileMenuOpen(false)}>
                   <ShoppingCart size={18} />
                 </Link>
+                {cartCount > 0 && (
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900 shadow-md">
+                    {cartCount}
+                  </motion.span>
+                )}
               </button>
               <button className="p-2 text-gray-900 dark:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}

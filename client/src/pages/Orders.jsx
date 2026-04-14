@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import BackButton from '../components/BackButton';
 import { toast } from 'react-hot-toast';
 import ConfirmationModal from '../components/ConfirmationModal';
+import DetailModal from '../components/DetailModal';
 
 const STATUS_FLOW = [
   { key: 'pending', label: 'Pending', shortLabel: 'Placed' },
@@ -87,6 +88,8 @@ const Orders = () => {
   const [cancelling, setCancelling] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderToCancel, setOrderToCancel] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -117,9 +120,15 @@ const Orders = () => {
     }
   };
 
-  const openCancelModal = (orderId) => {
+  const openCancelModal = (e, orderId) => {
+    e.stopPropagation();
     setOrderToCancel(orderId);
     setIsModalOpen(true);
+  };
+
+  const openDetailModal = (order) => {
+    setSelectedOrder(order);
+    setIsDetailModalOpen(true);
   };
 
   if (loading) {
@@ -145,13 +154,14 @@ const Orders = () => {
           {orders.map((order) => {
             const status = order.orderStatus || (order.isDelivered ? 'delivered' : 'pending');
             const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
-            const canCancel = ['pending', 'accepted'].includes(status);
+            const canCancel = ['pending', 'accepted', 'inProcess', 'outForDelivery'].includes(status);
             return (
               <motion.div
                 key={order._id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`glass dark:bg-gray-900 rounded-[2rem] border premium-shadow overflow-hidden ${status === 'cancelled' ? 'border-red-200 dark:border-red-900/30' : 'border-white/40 dark:border-white/5'}`}
+                onClick={() => openDetailModal(order)}
+                className={`glass dark:bg-gray-900 rounded-[2rem] border premium-shadow overflow-hidden cursor-pointer active:scale-[0.99] transition-all ${status === 'cancelled' ? 'border-red-200 dark:border-red-900/30' : 'border-white/40 dark:border-white/5'}`}
               >
                 {/* Order Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4 p-3 pb-2 border-b border-gray-100 dark:border-white/5">
@@ -200,7 +210,7 @@ const Orders = () => {
                     {/* Cancel button — only if pending or accepted */}
                     {canCancel && (
                       <button
-                        onClick={() => openCancelModal(order._id)}
+                        onClick={(e) => openCancelModal(e, order._id)}
                         disabled={cancelling[order._id]}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-red-600 dark:text-red-400 text-[8px] font-black uppercase tracking-wider hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 border border-red-200 dark:border-red-900/40"
                       >
@@ -244,6 +254,13 @@ const Orders = () => {
         message="Are you sure you want to cancel this order? "
         confirmText={cancelling[orderToCancel] ? "Cancelling..." : "Confirm Cancellation"}
         type="danger"
+      />
+
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        data={selectedOrder}
+        type="order"
       />
     </div>
   );
