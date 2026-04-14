@@ -4,6 +4,10 @@ import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import banner_1 from "../data/banner_1.png"
+import banner_2 from "../data/banner_2.png"
+import banner_3 from "../data/banner_3.png"
+import banner_4 from "../data/banner_4.png"
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -12,7 +16,7 @@ import 'swiper/css/effect-fade';
 
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=80',
+    image: banner_1,
     title: 'Timeless Precision',
     subtitle: 'New Arrivals 2025',
     description: 'Experience the pinnacle of craftsmanship with our curated selection of premium products.',
@@ -20,7 +24,7 @@ const slides = [
     link: '/products',
   },
   {
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1600&q=80',
+    image: banner_3,
     title: 'Next-Gen Tech',
     subtitle: 'Electronics & Gadgets',
     description: 'Discover the latest gadgets designed to simplify and elevate your digital lifestyle.',
@@ -28,7 +32,7 @@ const slides = [
     link: '/products',
   },
   {
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80',
+    image: banner_2,
     title: 'Style Redefined',
     subtitle: 'Fashion & Lifestyle',
     description: 'From everyday essentials to luxury finds — shop the collection everyone is talking about.',

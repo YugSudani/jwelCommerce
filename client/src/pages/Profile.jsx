@@ -85,7 +85,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4  space-y-1">
+    <div className="max-w-5xl mx-auto px-4  space-y-3">
       <BackButton />
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-2">
@@ -93,7 +93,7 @@ const Profile = () => {
         <p className="text-gray-500 dark:text-gray-400 font-medium">Manage your account details and delivery address.</p>
       </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4">
         {/* Left: Avatar Card */}
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
           className="glass dark:bg-gray-800 rounded-[2rem] p-8 border border-white/40 dark:border-white/5 premium-shadow flex flex-col items-center gap-4 text-center lg:col-span-1">
@@ -189,7 +189,7 @@ const Profile = () => {
 
       {/* Recent Orders */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-        className="glass dark:bg-gray-800 rounded-[2rem] border border-white/40 dark:border-white/5 premium-shadow overflow-hidden">
+        className="glass dark:bg-gray-800 rounded-[2rem] border border-white/40  dark:border-white/5 premium-shadow overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-xl flex items-center justify-center">
