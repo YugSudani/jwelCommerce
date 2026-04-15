@@ -150,13 +150,13 @@ const HeroCarousel = () => {
 
       {/* Custom Prev/Next Buttons */}
       <button
-        className="swiper-btn-prev hidden md:flex absolute left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white items-center justify-center hover:bg-white/25 active:scale-90 transition-all font-bold"
+        className="swiper-btn-prev hidden md:flex absolute left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-white/25 active:scale-90 transition-all font-bold"
         aria-label="Previous slide"
       >
         <ChevronRight size={20} className="rotate-180" />
       </button>
       <button
-        className="swiper-btn-next hidden md:flex absolute right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white items-center justify-center hover:bg-white/25 active:scale-90 transition-all font-bold"
+        className="swiper-btn-next hidden md:flex absolute right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-white/25 active:scale-90 transition-all font-bold"
         aria-label="Next slide"
       >
         <ChevronRight size={20} />

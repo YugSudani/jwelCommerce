@@ -4,6 +4,7 @@ import { AlertCircle, X } from 'lucide-react';
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText = "Confirm", cancelText = "Cancel", type = "danger" }) => {
   if (!isOpen) return null;
+const modalBgClass = "backdrop-blur-sm bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6";
 
   return (
     <AnimatePresence>
@@ -22,7 +23,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="relative w-full max-w-md glass dark:bg-gray-800 premium-shadow rounded-2xl overflow-hidden bg-white dark:border-white/5"
+          className={`relative w-full max-w-md ${modalBgClass} rounded-2xl overflow-hidden `}
         >
 
           <div className="p-6">

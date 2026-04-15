@@ -240,7 +240,7 @@ const AdminProducts = () => {
             disabled={sortToggling}
             title={sortMode === 'random' ? 'Random mode ON — click to switch back to newest first' : 'Click to shuffle product suggestions for users'}
             className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm border transition-all active:scale-95 disabled:opacity-50 ${sortMode === 'random'
-                ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700'
+                ? 'bg-blue-600 border-blue-600 text-white  hover:bg-blue-700'
                 : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
           >
@@ -249,7 +249,7 @@ const AdminProducts = () => {
           </button>
           <button
             onClick={() => navigate('/admin/orders')}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+            className="flex items-center bg-blue-600 border-blue-600 hover:bg-blue-700 text-white text-sm font-bold gap-2 px-5 py-3 rounded-2xl border   transition-all"
           >
             <ShoppingBag size={16} />
             Switch to Orders
@@ -257,7 +257,7 @@ const AdminProducts = () => {
           </button>
           <button
             onClick={openCreateForm}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-2xl font-black shadow-lg shadow-blue-500/20 hover:bg-blue-700 active:scale-95 transition-all text-sm"
+            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-sm"
           >
             <Plus size={18} strokeWidth={3} />
             New Product
@@ -371,7 +371,7 @@ const AdminProducts = () => {
                 Discard
               </button>
               <button type="submit" disabled={saving}
-                className="flex-[2] px-6 py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 shadow-xl shadow-blue-500/20 active:scale-[0.98] transition-all disabled:opacity-70">
+                className="flex-[2] px-6 py-4 rounded-2xl bg-blue-600 text-white font-black   active:scale-[0.98] transition-all disabled:opacity-70">
                 {saving ? 'Saving...' : isEditing ? 'Update Product' : 'Publish Product'}
               </button>
             </div>

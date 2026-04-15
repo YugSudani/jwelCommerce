@@ -47,11 +47,11 @@ const Navbar = () => {
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 md:px-8 py-4 ${isScrolled ? "top-2" : "top-0"}`}>
-        <div className={`max-w-8xl mx-auto rounded-2xl transition-all duration-500 border ${isScrolled ? " backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] px-6 py-3 border-white/20" : "bg-transparent py-4 border-transparent"}`}>
+        <div className={`max-w-8xl mx-auto rounded-2xl transition-all duration-500 border ${isScrolled ? " backdrop-blur-sm bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] px-6 py-3 border-white/20" : "bg-transparent py-4 border-transparent"}`}>
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white premium-shadow group-hover:rotate-6 transition-transform">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white group-hover:rotate-6 transition-transform">
                 <ShoppingBag size={22} strokeWidth={2.5} />
               </div>
               <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
@@ -131,7 +131,7 @@ const Navbar = () => {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.97 }}
                             transition={{ duration: 0.15 }}
-                            className="absolute right-0 mt-3 w-52 backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50"
+                            className="absolute right-0 mt-4 w-52 backdrop-blur-lg bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden z-50"
                           >
                             <div className="px-4 py-3 border-b border-gray-50 dark:border-white/5">
                               <p className="font-black text-gray-900 dark:text-white text-sm">{userInfo.name}</p>
@@ -209,7 +209,7 @@ const Navbar = () => {
             exit={{ opacity: 0, scale: 0.98 }}
             style={{ originY: 0 }}
             //fixed blur background
-            className="fixed inset-x-3 top-20 z-40 md:hidden backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6">
+            className="fixed inset-x-3 top-22 z-40 md:hidden backdrop-blur-lg bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6">
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}>

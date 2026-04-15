@@ -47,7 +47,7 @@ const Login = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-blue-900 via-transparent to-blue-900/30" />
         <div className="relative z-10 flex flex-col justify-end p-20 text-white">
-          <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-8 border border-white/20">
+          <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-8 border border-white/20">
             <ShoppingBag size={32} />
           </div>
           <h2 className="text-6xl font-black leading-tight tracking-tighter mb-6">

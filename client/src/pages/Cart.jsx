@@ -64,7 +64,7 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-8xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-8xl mx-auto px-2 py-5 sm:py-10 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -248,7 +248,7 @@ const Cart = () => {
       />
 
       {/* Mobile Sticky Proceed button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 p-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-100 dark:border-white/5 p-4">
         <button
           onClick={handleCheckout}
           className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"

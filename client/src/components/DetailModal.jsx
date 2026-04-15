@@ -33,7 +33,7 @@ const DetailModal = ({ isOpen, onClose, data, type = 'order' }) => {
         setActiveImage((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    const modalBgClass = "backdrop-blur-2xl bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6";
+    const modalBgClass = "backdrop-blur-sm bg-white/60 dark:bg-gray-950/60 border border-white/50 dark:border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]  rounded-2xl p-6";
 
     return (
         <AnimatePresence>

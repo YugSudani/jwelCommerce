@@ -437,7 +437,7 @@ const Checkout = () => {
       </div>
 
       {/* Mobile Sticky Navigation Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-100 dark:border-white/5 p-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-100 dark:border-white/5 p-4">
         <div className="flex flex-col-reverse gap-4">
           {step > 0 && (
             <button
