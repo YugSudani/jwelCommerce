@@ -135,16 +135,16 @@ const Navbar = () => {
                           >
                             <div className="px-4 py-3 border-b border-gray-50 dark:border-white/5">
                               <p className="font-black text-gray-900 dark:text-white text-sm">{userInfo.name}</p>
-                              <p className="text-xs text-gray-400 truncate">{userInfo.email}</p>
+                              <p className="text-xs text-gray-900 dark:text-gray-400 truncate">{userInfo.email}</p>
                             </div>
                             <div className="p-2">
                               <Link to="/profile" onClick={() => setIsProfileOpen(false)}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <User size={15} className="text-gray-400" /> My Profile
+                                <User size={15} className="text-gray-900 dark:text-gray-400 " /> My Profile
                               </Link>
                               <Link to="/orders" onClick={() => setIsProfileOpen(false)}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <Package size={15} className="text-gray-400" /> My Orders
+                                <Package size={15} className="text-gray-900 dark:text-gray-400 " /> My Orders
                               </Link>
                               {userInfo.isAdmin && (
                                 <Link to="/admin/products" onClick={() => setIsProfileOpen(false)}
