@@ -5,7 +5,7 @@ import { CartContext } from "../context/CartContext";
 import { ThemeContext } from "../context/ThemeContext";
 import {
   User, LogOut, Menu, X, Package, Sun, Moon, Home, Settings, ChevronDown,
-  Speaker,
+  Speaker, Bell,
   ShoppingCart,
   ShoppingBag,
 } from "lucide-react";
@@ -147,10 +147,16 @@ const Navbar = () => {
                                 <Package size={15} className="text-gray-900 dark:text-gray-400 " /> My Orders
                               </Link>
                               {userInfo.isAdmin && (
-                                <Link to="/admin/products" onClick={() => setIsProfileOpen(false)}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
-                                  <Settings size={15} /> Admin Panel
-                                </Link>
+                                <>
+                                  <Link to="/admin/products" onClick={() => setIsProfileOpen(false)}
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                    <Settings size={15} /> Admin Panel
+                                  </Link>
+                                  <Link to="/admin/broadcast" onClick={() => setIsProfileOpen(false)}
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                                    <Bell size={15} /> Broadcast
+                                  </Link>
+                                </>
                               )}
                               <button
                                 onClick={() => { setIsProfileOpen(false); setIsLogoutModalOpen(true); }}
@@ -234,10 +240,16 @@ const Navbar = () => {
                     <Package size={16} /> My Orders
                   </Link>
                   {userInfo.isAdmin && (
-                    <Link to="/admin/products" className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-2"
-                      onClick={() => setIsMobileMenuOpen(false)}>
-                      <Settings size={16} /> Admin Panel
-                    </Link>
+                    <>
+                      <Link to="/admin/products" className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-2"
+                        onClick={() => setIsMobileMenuOpen(false)}>
+                        <Settings size={16} /> Admin Panel
+                      </Link>
+                      <Link to="/admin/broadcast" className="text-purple-600 dark:text-purple-400 font-bold flex items-center gap-2"
+                        onClick={() => setIsMobileMenuOpen(false)}>
+                        <Bell size={16} /> Broadcast
+                      </Link>
+                    </>
                   )}
                   <button onClick={() => { setIsLogoutModalOpen(true); setIsMobileMenuOpen(false); }}
                     className="text-red-500 font-bold text-left flex items-center gap-2">

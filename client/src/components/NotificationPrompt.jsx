@@ -1,11 +1,20 @@
+import { useState } from 'react';
 import { useNotification } from '../context/NotificationContext';
-import { Bell, X } from 'lucide-react';
+import { Bell, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NotificationPrompt = () => {
   const { showPrompt, enableNotifications, setShowPrompt } = useNotification();
+  const [loading, setLoading] = useState(false);
 
   if (!showPrompt) return null;
+
+  const handleAllow = async () => {
+    setLoading(true);
+    await enableNotifications();
+    // enableNotifications hides the prompt on success; if it fails we reset
+    setLoading(false);
+  };
 
   return (
     <AnimatePresence>
@@ -29,14 +38,23 @@ const NotificationPrompt = () => {
               </p>
               <div className="flex gap-2 mt-3">
                 <button
-                  onClick={enableNotifications}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  onClick={handleAllow}
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5"
                 >
-                  Allow
+                  {loading ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      Saving…
+                    </>
+                  ) : (
+                    'Allow'
+                  )}
                 </button>
                 <button
                   onClick={() => setShowPrompt(false)}
-                  className="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  disabled={loading}
+                  className="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 text-xs font-bold py-2 px-3 rounded-lg transition-colors"
                 >
                   Not now
                 </button>
@@ -44,7 +62,8 @@ const NotificationPrompt = () => {
             </div>
             <button
               onClick={() => setShowPrompt(false)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              disabled={loading}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
             >
               <X size={16} />
             </button>

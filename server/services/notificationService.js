@@ -3,23 +3,10 @@ const axios = require('axios');
 const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
 const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY;
 
-console.log('[NotifService] ONESIGNAL_APP_ID:', ONESIGNAL_APP_ID ? 'set' : 'NOT SET');
-console.log('[NotifService] ONESIGNAL_REST_API_KEY:', ONESIGNAL_REST_API_KEY ? 'set' : 'NOT SET');
-
+// ─── Core send helper ───────────────────────────────────────────────────────
 const sendNotification = async (playerIds, heading, message, data = {}) => {
-  console.log('[NotifService] sendNotification called:', { playerIds, heading, message });
-
-  if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
-    console.log('[NotifService] OneSignal not configured. Skipping notification.');
-    return null;
-  }
-
-  if (!playerIds || playerIds.length === 0) {
-    console.log('[NotifService] No player IDs provided. Skipping notification.');
-    return null;
-  }
-
-  console.log('[NotifService] Sending notification to:', playerIds);
+  if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) return null;
+  if (!playerIds || playerIds.length === 0) return null;
 
   try {
     const response = await axios.post(
@@ -29,7 +16,7 @@ const sendNotification = async (playerIds, heading, message, data = {}) => {
         include_player_ids: playerIds,
         headings: { en: heading },
         contents: { en: message },
-        data: data,
+        data,
         priority: 10,
       },
       {
@@ -39,64 +26,88 @@ const sendNotification = async (playerIds, heading, message, data = {}) => {
         },
       }
     );
-    console.log('[NotifService] Notification sent successfully:', response.data);
     return response.data;
   } catch (err) {
-    console.error('[NotifService] OneSignal notification error:', err.response?.data || err.message);
+    console.error('[Notif] OneSignal API error:', err.response?.data || err.message);
     return null;
   }
 };
 
-const sendOrderNotificationToUser = async (user) => {
-  console.log('[NotifService] sendOrderNotificationToUser:', { playerID: user?.playerID, notificationEnabled: user?.notificationEnabled });
-
-  if (!user?.notificationEnabled) {
-    console.log('[NotifService] User notifications disabled. Skipping.');
-    return null;
-  }
-
-  // Collect all unique, non-empty player IDs across all devices
-  const idsSet = new Set();
-  if (user.playerID) idsSet.add(user.playerID);
-  if (Array.isArray(user.playerIDs)) {
-    user.playerIDs.forEach((id) => { if (id) idsSet.add(id); });
-  }
-  const allIds = Array.from(idsSet);
-
-  if (allIds.length === 0) {
-    console.log('[NotifService] No player IDs found for user. Skipping.');
-    return null;
-  }
-
-  console.log('[NotifService] Sending order confirmation to user IDs:', allIds);
-  return sendNotification(
-    allIds,
-    'Order Confirmed ✅',
-    'Your order has been placed successfully! We will update you on its progress.',
-    { type: 'order_placed' }
-  );
+// ─── Collect all unique, non-empty player IDs for a user ───────────────────
+const getUserPlayerIds = (user) => {
+  const set = new Set();
+  if (user.playerID) set.add(user.playerID);
+  if (Array.isArray(user.playerIDs)) user.playerIDs.forEach((id) => { if (id) set.add(id); });
+  return Array.from(set);
 };
 
-const sendOrderNotificationToAdmin = async (adminPlayerIds, order, userName) => {
-  console.log('[NotifService] sendOrderNotificationToAdmin:', { adminPlayerIds, userName, orderId: order?._id });
+// ─── Order placed → user ───────────────────────────────────────────────────
+const sendOrderPlacedToUser = async (user) => {
+  if (!user?.notificationEnabled) return null;
+  const ids = getUserPlayerIds(user);
+  if (!ids.length) return null;
+  return sendNotification(ids, 'Order Confirmed \u2705', "Your order has been placed! We'll keep you updated on its progress.", { type: 'order_placed' });
+};
 
-  if (!adminPlayerIds || adminPlayerIds.length === 0) {
-    console.log('[NotifService] No admin playerIDs. Skipping admin notification.');
-    return null;
-  }
-
-  const message = `New order from ${userName}. Total: ₹${order.totalPrice}. Check admin panel for details.`;
-  console.log('[NotifService] Sending new order notification to admins:', adminPlayerIds);
+// ─── Order placed → admin ──────────────────────────────────────────────────
+const sendOrderPlacedToAdmin = async (adminPlayerIds, order, userName) => {
+  if (!adminPlayerIds?.length) return null;
   return sendNotification(
     adminPlayerIds,
-    'New Order Received!',
-    message,
+    'New Order Received 🛍️',
+    `${userName} placed an order — ₹${order.totalPrice}. Check admin panel.`,
     { type: 'new_order', orderId: order._id.toString() }
   );
 };
 
+// ─── Order cancelled → user ────────────────────────────────────────────────
+const sendOrderCancelledToUser = async (user) => {
+  if (!user?.notificationEnabled) return null;
+  const ids = getUserPlayerIds(user);
+  if (!ids.length) return null;
+  return sendNotification(ids, 'Order Cancelled ❌', 'Your order has been cancelled. If this was a mistake, please place a new order.', { type: 'order_cancelled' });
+};
+
+// ─── Order cancelled → admin ───────────────────────────────────────────────
+const sendOrderCancelledToAdmin = async (adminPlayerIds, order, userName) => {
+  if (!adminPlayerIds?.length) return null;
+  return sendNotification(
+    adminPlayerIds,
+    'Order Cancelled ⚠️',
+    `${userName} cancelled an order — ₹${order.totalPrice}. Review admin panel.`,
+    { type: 'order_cancelled', orderId: order._id.toString() }
+  );
+};
+
+// ─── Order status update → user (only meaningful milestones) ───────────────
+const STATUS_MESSAGES = {
+  accepted: {
+    heading: 'Order Accepted 👍',
+    body: 'Great news! Your order has been accepted and is being prepared.',
+  },
+  outForDelivery: {
+    heading: 'Out for Delivery 🚚',
+    body: 'Your order is on its way! Expect delivery soon.',
+  },
+  delivered: {
+    heading: 'Delivered 🎉',
+    body: 'Your order has been delivered. Enjoy your purchase!',
+  },
+};
+
+const sendOrderStatusUpdateToUser = async (user, status) => {
+  const template = STATUS_MESSAGES[status];
+  if (!template) return null; // Skip inProcess, pending — not worth notifying
+  if (!user?.notificationEnabled) return null;
+  const ids = getUserPlayerIds(user);
+  if (!ids.length) return null;
+  return sendNotification(ids, template.heading, template.body, { type: 'order_status', status });
+};
+
 module.exports = {
-  sendNotification,
-  sendOrderNotificationToUser,
-  sendOrderNotificationToAdmin,
+  sendOrderPlacedToUser,
+  sendOrderPlacedToAdmin,
+  sendOrderCancelledToUser,
+  sendOrderCancelledToAdmin,
+  sendOrderStatusUpdateToUser,
 };

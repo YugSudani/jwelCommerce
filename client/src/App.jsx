@@ -26,6 +26,7 @@ import Checkout from './pages/Checkout';
 import Profile from './pages/Profile';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminBroadcast from './pages/admin/AdminBroadcast';
 
 
 // Pages only accessible when NOT logged in (login, register)
@@ -88,6 +89,7 @@ const AnimatedRoutes = () => {
         <Route element={<ProtectedRoute adminOnly />}>
           <Route path="/admin/products" element={<PageWrapper><AdminProducts /></PageWrapper>} />
           <Route path="/admin/orders" element={<PageWrapper><AdminOrders /></PageWrapper>} />
+          <Route path="/admin/broadcast" element={<PageWrapper><AdminBroadcast /></PageWrapper>} />
         </Route>
 
         {/* 404 fallback */}

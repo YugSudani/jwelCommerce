@@ -1,7 +1,13 @@
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
-const { sendOrderNotificationToUser, sendOrderNotificationToAdmin } = require('../services/notificationService');
+const {
+  sendOrderPlacedToUser,
+  sendOrderPlacedToAdmin,
+  sendOrderCancelledToUser,
+  sendOrderCancelledToAdmin,
+  sendOrderStatusUpdateToUser,
+} = require('../services/notificationService');
 const { getSettings } = require('../models/appSettingsModel');
 
 // @desc    Create new order
@@ -9,9 +15,7 @@ const { getSettings } = require('../models/appSettingsModel');
 // @access  Private
 const addOrderItems = async (req, res) => {
   try {
-    console.log('[OrderController] addOrderItems called');
     const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
-    console.log('[OrderController] Order details:', { totalPrice, items: orderItems?.length });
 
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -41,18 +45,23 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
-    console.log('[OrderController] Order created:', createdOrder._id);
+    console.log(`[Order] New order #${createdOrder._id} placed by "${req.user.name}" (${req.user.email}) — ₹${totalPrice} via ${paymentMethod}`);
 
     const user = await User.findById(req.user._id);
-    console.log('[OrderController] User for notification:', { playerID: user.playerID, notificationEnabled: user.notificationEnabled });
-    sendOrderNotificationToUser(user).catch(err => console.log('[OrderController] User notif error:', err.message));
+
+    // Fire-and-forget notifications
+    sendOrderPlacedToUser(user).catch((err) =>
+      console.error(`[Order] User notification failed for order ${createdOrder._id}:`, err.message)
+    );
 
     const settings = await getSettings();
-    console.log('[OrderController] Admin playerIDs:', settings.adminPlayerIDs);
-    if (settings.adminPlayerIDs && settings.adminPlayerIDs.length > 0) {
-      sendOrderNotificationToAdmin(settings.adminPlayerIDs, createdOrder, user.name).catch(err => console.log('[OrderController] Admin notif error:', err.message));
+    if (settings.adminPlayerIDs?.length) {
+      sendOrderPlacedToAdmin(settings.adminPlayerIDs, createdOrder, user.name).catch((err) =>
+        console.error(`[Order] Admin notification failed for order ${createdOrder._id}:`, err.message)
+      );
     }
 
+    // Update user's saved shipping address
     try {
       const { phone, address, city, postalCode, state, country } = shippingAddress;
       await User.findByIdAndUpdate(req.user._id, {
@@ -64,12 +73,12 @@ const addOrderItems = async (req, res) => {
         ...(country && { country }),
       });
     } catch (err) {
-      console.error('Could not update user address:', err.message);
+      console.error('[Order] Could not update user address:', err.message);
     }
 
     res.status(201).json(createdOrder);
   } catch (err) {
-    console.error('Order creation error:', err);
+    console.error('[Order] Order creation error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -86,7 +95,7 @@ const getOrderById = async (req, res) => {
       res.status(404).json({ message: 'Order not found' });
     }
   } catch (err) {
-    console.error('Get order error:', err);
+    console.error('[Order] Get order error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -106,7 +115,7 @@ const updateOrderToPaid = async (req, res) => {
       res.status(404).json({ message: 'Order not found' });
     }
   } catch (err) {
-    console.error('Update order paid error:', err);
+    console.error('[Order] Update order paid error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -119,7 +128,6 @@ const updateOrderStatus = async (req, res) => {
     const { status } = req.body;
     const allowedStatuses = ['pending', 'accepted', 'inProcess', 'outForDelivery', 'delivered', 'cancelled'];
 
-
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid status value' });
     }
@@ -129,6 +137,7 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    const prevStatus = order.orderStatus;
     order.orderStatus = status;
 
     if (status === 'delivered') {
@@ -137,9 +146,32 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const updatedOrder = await order.save();
+    console.log(`[Order] Status updated: order #${order._id} → "${status}" (was "${prevStatus}") by admin "${req.user.name}"`);
+
+    // Notify user on key milestones; skip inProcess / pending (not worth notifying)
+    const user = await User.findById(order.user);
+    if (user) {
+      sendOrderStatusUpdateToUser(user, status).catch((err) =>
+        console.error(`[Order] Status notification failed (order ${order._id}, status ${status}):`, err.message)
+      );
+
+      // Also notify admins when admin cancels an order
+      if (status === 'cancelled') {
+        const settings = await getSettings();
+        if (settings.adminPlayerIDs?.length) {
+          sendOrderCancelledToAdmin(settings.adminPlayerIDs, order, user.name).catch((err) =>
+            console.error(`[Order] Admin cancel notification failed (order ${order._id}):`, err.message)
+          );
+        }
+        sendOrderCancelledToUser(user).catch((err) =>
+          console.error(`[Order] User cancel notification failed (order ${order._id}):`, err.message)
+        );
+      }
+    }
+
     res.json(updatedOrder);
   } catch (err) {
-    console.error('Update order status error:', err);
+    console.error('[Order] Update order status error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -152,7 +184,7 @@ const getMyOrders = async (req, res) => {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
-    console.error('Get my orders error:', err);
+    console.error('[Order] Get my orders error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -168,12 +200,12 @@ const getOrders = async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
-    console.error('Get orders error:', err);
+    console.error('[Order] Get orders error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Cancel order (customer — only if pending)
+// @desc    Cancel order (customer — only if pending/accepted)
 // @route   PUT /api/orders/:id/cancel
 // @access  Private
 const cancelOrder = async (req, res) => {
@@ -189,6 +221,7 @@ const cancelOrder = async (req, res) => {
       return res.status(400).json({ message: 'Order cannot be cancelled at this stage' });
     }
 
+    // Restore stock
     for (const item of order.orderItems) {
       const product = await Product.findById(item.product);
       if (product) {
@@ -199,9 +232,27 @@ const cancelOrder = async (req, res) => {
 
     order.orderStatus = 'cancelled';
     const updated = await order.save();
+    console.log(`[Order] Order #${order._id} cancelled by user "${req.user.name}" (${req.user.email})`);
+
+    // Notify user
+    const user = await User.findById(req.user._id);
+    if (user) {
+      sendOrderCancelledToUser(user).catch((err) =>
+        console.error(`[Order] User cancel notification failed (order ${order._id}):`, err.message)
+      );
+    }
+
+    // Notify admins
+    const settings = await getSettings();
+    if (settings.adminPlayerIDs?.length && user) {
+      sendOrderCancelledToAdmin(settings.adminPlayerIDs, order, user.name).catch((err) =>
+        console.error(`[Order] Admin cancel notification failed (order ${order._id}):`, err.message)
+      );
+    }
+
     res.json(updated);
   } catch (err) {
-    console.error('Cancel order error:', err);
+    console.error('[Order] Cancel order error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -217,12 +268,21 @@ const updateOrderToDelivered = async (req, res) => {
       order.deliveredAt = Date.now();
       order.orderStatus = 'delivered';
       const updatedOrder = await order.save();
+      console.log(`[Order] Order #${order._id} marked delivered by admin "${req.user.name}"`);
+
+      const user = await User.findById(order.user);
+      if (user) {
+        sendOrderStatusUpdateToUser(user, 'delivered').catch((err) =>
+          console.error(`[Order] Delivered notification failed (order ${order._id}):`, err.message)
+        );
+      }
+
       res.json(updatedOrder);
     } else {
       res.status(404).json({ message: 'Order not found' });
     }
   } catch (err) {
-    console.error('Update order delivered error:', err);
+    console.error('[Order] Update order delivered error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

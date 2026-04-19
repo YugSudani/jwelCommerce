@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
-import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight, Search, Shuffle } from 'lucide-react';
+import { Edit, Plus, Trash2, X, Upload, Link, ShoppingBag, ChevronRight, Search, Shuffle, LayoutGrid } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import DetailModal from '../../components/DetailModal';
+import AdminNav from '../../components/AdminNav';
 
 const emptyForm = {
   name: '',
@@ -42,13 +43,8 @@ const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [sortMode, setSortMode] = useState('recent'); // 'recent' | 'random'
-  const [sortToggling, setSortToggling] = useState(false);
-
   useEffect(() => {
     fetchProducts();
-    // Load current global sort mode
-    API.get('/settings/sort').then(({ data }) => setSortMode(data.sortMode)).catch(() => { });
   }, []);
 
   const isEditing = useMemo(() => Boolean(editingProductId), [editingProductId]);
@@ -114,23 +110,7 @@ const AdminProducts = () => {
     setIsDetailModalOpen(true);
   };
 
-  const toggleSortMode = async () => {
-    const next = sortMode === 'recent' ? 'random' : 'recent';
-    setSortToggling(true);
-    try {
-      const { data } = await API.put('/settings/sort', { sortMode: next });
-      setSortMode(data.sortMode);
-      toast.success(
-        data.sortMode === 'random'
-          ? '🔀 Shuffle Suggestions ON — users see a random order'
-          : '📅 Showing newest products first'
-      );
-    } catch {
-      toast.error('Failed to update sort mode');
-    } finally {
-      setSortToggling(false);
-    }
-  };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -228,43 +208,11 @@ const AdminProducts = () => {
 
   return (
     <div className="max-w-8xl mx-auto px-1 py-0 space-y-4">
-      {/* Header with Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2
-      ">
-        <div>
-          <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Product Inventory</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium text-sm">Manage your catalog, stock, and media.</p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={toggleSortMode}
-            disabled={sortToggling}
-            title={sortMode === 'random' ? 'Random mode ON — click to switch back to newest first' : 'Click to shuffle product suggestions for users'}
-            className={`flex items-center gap-2 px-2 py-2 rounded-2xl font-bold text-sm border transition-all active:scale-95 disabled:opacity-50 ${sortMode === 'random'
-                ? 'bg-blue-600 border-blue-600 text-white  hover:bg-blue-700'
-                : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
-          >
-            <Shuffle size={16} />
-            {sortMode === 'random' ? 'Shuffle: ON' : 'Shuffle: OFF'}
-          </button>
-          <button
-            onClick={() => navigate('/admin/orders')}
-            className="flex items-center bg-blue-600 border-blue-600 hover:bg-blue-700 text-white text-sm font-bold gap-2 px-5 py-3 rounded-2xl border   transition-all"
-          >
-            <ShoppingBag size={16} />
-            Switch to Orders
-            <ChevronRight size={14} />
-          </button>
-          <button
-            onClick={openCreateForm}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-sm"
-          >
-            <Plus size={18} strokeWidth={3} />
-            New Product
-          </button>
-        </div>
-      </div>
+      <AdminNav
+        activePage="products"
+        onActionClick={openCreateForm}
+        actionLabel="New Product"
+      />
 
       {/* Form */}
       {showForm && (

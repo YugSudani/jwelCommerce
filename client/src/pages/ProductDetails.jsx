@@ -76,7 +76,7 @@ const ProductDetails = () => {
 
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         {/* Left: Images */}
-        <div className="space-y-6 sm:sticky  top-32">
+        <div className="space-y-6 lg:sticky top-32">
           <div className="glass dark:bg-gray-800 rounded-[2.5rem] overflow-hidden premium-shadow border border-white/40 dark:border-white/5 bg-white">
             <img
               src={selectedImage || productImages[0]}
@@ -91,7 +91,7 @@ const ProductDetails = () => {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(image)}
-                  className={`flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 m-1 sm:m-2 transition-all ${selectedImage === image ? 'border-blue-600 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                  className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden border-2 m-1 lg:m-2 transition-all ${selectedImage === image ? 'border-blue-600 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                 >
                   <img src={image} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
@@ -107,7 +107,7 @@ const ProductDetails = () => {
             <span className="inline-block bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4">
               {product.category}
             </span>
-            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white leading-tight tracking-tight mb-4">
+            <h1 className="text-2xl lg:text-4xl font-black text-gray-900 dark:text-white leading-tight tracking-tight mb-4">
               {product.name}
             </h1>
             <div className="flex items-center gap-4 text-sm font-bold">
@@ -130,11 +130,11 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          <div className="glass dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-6 sm:mb-8">
-            <div className="flex items-center sm:items-end justify-between gap-4">
+          <div className="glass dark:bg-gray-800 p-6 lg:p-8 rounded-[2rem] premium-shadow border border-white/40 dark:border-white/5 mb-6 lg:mb-8">
+            <div className="flex items-center lg:items-end justify-between gap-4">
               <div>
                 <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-1">Price</p>
-                <span className="text-2xl sm:text-3xl font-black text-blue-600 dark:text-blue-400">
+                <span className="text-2xl lg:text-3xl font-black text-blue-600 dark:text-blue-400">
                   ₹{product.price?.toLocaleString()}
                 </span>
               </div>
@@ -156,7 +156,7 @@ const ProductDetails = () => {
           </div>
 
           {/* Desktop only Add to Cart button */}
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <button
               onClick={handleAddToCart}
               disabled={product.countInStock === 0}
@@ -172,7 +172,7 @@ const ProductDetails = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:mt-3">
+          <div className="grid grid-cols-2 gap-4 lg:mt-3">
             <div className="p-4 rounded-3xl border border-gray-100 dark:border-white/5 text-center">
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Satisfication</p>
               <p className="font-bold text-gray-900 dark:text-gray-200">Guaranteed</p>
@@ -186,7 +186,7 @@ const ProductDetails = () => {
       </div>
 
       {/* Mobile Sticky Add to Cart button */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-100 dark:border-white/5 p-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-100 dark:border-white/5 p-4">
         <button
           onClick={handleAddToCart}
           disabled={product.countInStock === 0}
@@ -202,7 +202,7 @@ const ProductDetails = () => {
         </button>
       </div>
       {/* Spacer for sticky mobile button */}
-      <div className="h-40 sm:hidden" />
+      <div className="h-40 lg:hidden" />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
 import { LayoutGrid, ShoppingBag, ChevronRight, Phone, MapPin, Package, Banknote, CheckCircle } from 'lucide-react';
 import DetailModal from '../../components/DetailModal';
+import AdminNav from '../../components/AdminNav';
 
 
 const STATUS_FLOW = [
@@ -106,21 +107,7 @@ const AdminOrders = () => {
 
   return (
     <div className="max-w-8xl mx-auto px-1 py-0 space-y-4">
-      {/* Header with Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Order Management</h2>
-          <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Track and manage all customer orders.</p>
-        </div>
-        <button
-          onClick={() => navigate('/admin/products')}
-          className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-        >
-          <LayoutGrid size={16} />
-          Switch to Products
-          <ChevronRight size={14} />
-        </button>
-      </div>
+      <AdminNav activePage="orders" />
 
       {/* Stats / Filters */}
       <div className="flex flex-wrap items-center gap-2 pb-2 overflow-x-auto no-scrollbar">

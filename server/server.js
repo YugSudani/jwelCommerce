@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const cron = require('node-cron');
 const connectDB = require('./config/db');
 
 const userRoutes = require('./routes/userRoutes');
@@ -10,6 +11,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const broadcastRoutes = require('./routes/broadcastRoutes');
 
 dotenv.config();
 
@@ -27,15 +29,20 @@ app.use(express.json());
 // Serve uploaded images as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+app.get('/', (req, res) => { res.send('API is running...'); });
 
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/broadcast', broadcastRoutes);
+
+// ─── Scheduled broadcast cron — runs every hour, checks for due broadcasts ──
+const { runScheduledBroadcasts } = require('./controllers/broadcastController');
+cron.schedule('0 * * * *', () => {
+  runScheduledBroadcasts();
+});
 
 // Error Handling Middleware
 app.use((req, res, next) => {
@@ -57,7 +64,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(
   PORT,
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-  )
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
