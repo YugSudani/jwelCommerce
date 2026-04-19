@@ -1,158 +1,189 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import API from '../api/axios';
+import { AuthContext } from './AuthContext';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
+  const { userInfo } = useContext(AuthContext);
+
   const [playerID, setPlayerID] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  console.log('[Notif] Component mounted, loading:', loading);
+  // Guard against double-init
+  const didInit = useRef(false);
+  // Track the last userInfo._id we ran the device check for
+  const checkedUserId = useRef(null);
 
+  // ─── 1. Init OneSignal once (after SDK loads) ──────────────────────────────
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        console.log('[Notif] Fetching user profile...');
-        const { data } = await API.get('/users/profile');
-        console.log('[Notif] User profile:', data);
-        setUserInfo(data);
-        setIsAdmin(data.isAdmin || false);
-        setLoading(false);
-      } catch (err) {
-        console.log('[Notif] No user logged in, skipped');
-        setUserInfo(null);
-        setLoading(false);
-      }
-    };
-    checkUser();
-  }, []);
-
-  useEffect(() => {
-    if (loading) return;
-    console.log('[Notif] Loading complete, initializing OneSignal...');
-
     const initOneSignal = () => {
-      console.log('[Notif] OneSignal exists:', !!window.OneSignal, 'Deferred:', !!window.OneSignalDeferred);
-      
-      if (window.OneSignal) {
-        window.OneSignal.init({
-          appId: "3722d783-1406-417f-81f7-6402bd57b2e7",
-          allowLocalhostAsSecureOrigin: true,
-          notificationPromptEnable: false,
-          welcomeNotification: { disable: true },
-        }).then(async () => {
-          console.log('[Notif] OneSignal initialized successfully');
-          setIsInitialized(true);
-          
-          try {
-            const userId = await window.OneSignal.getUserId();
-            console.log('[Notif] Got userId:', userId);
-            if (userId) {
-              setPlayerID(userId);
-              await savePlayerID(userId);
-            }
-          } catch (e) {
-            console.log('[Notif] getUserId error:', e.message);
-          }
-        }).catch((err) => {
-          console.log('[Notif] OneSignal init error:', err);
-          setIsInitialized(true);
-        });
-      } else {
-        console.log('[Notif] OneSignal not ready yet, retrying in 1s...');
-        setTimeout(initOneSignal, 1000);
+      if (!window.OneSignal) {
+        setTimeout(initOneSignal, 800);
+        return;
       }
+
+      if (didInit.current) return;
+      didInit.current = true;
+
+      try {
+        window.OneSignal.init({
+          appId: '3722d783-1406-417f-81f7-6402bd57b2e7',
+          allowLocalhostAsSecureOrigin: true,
+          notifyButton: { enable: false },
+          welcomeNotification: { disable: true },
+        });
+        console.log('[Notif] OneSignal.init() called (v16)');
+      } catch (e) {
+        console.log('[Notif] OneSignal.init() error:', e.message);
+      }
+
+      // Listen for subscription changes (grant / revoke / new device)
+      try {
+        window.OneSignal.User.PushSubscription.addEventListener('change', (event) => {
+          console.log('[Notif] PushSubscription change event:', event);
+          const newId = event?.current?.id;
+          if (newId) {
+            console.log('[Notif] New subscription ID:', newId);
+            setPlayerID(newId);
+            savePlayerID(newId);
+            setShowPrompt(false);
+          }
+        });
+      } catch (e) {
+        console.log('[Notif] Could not attach subscription listener:', e.message);
+      }
+
+      setIsInitialized(true);
     };
 
     initOneSignal();
-  }, [loading]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ─── 2. React to user login / logout ───────────────────────────────────────
   useEffect(() => {
-    if (!isInitialized || !playerID) return;
-    console.log('[Notif] PlayerID ready, isAdmin:', isAdmin);
-    
-    if (isAdmin) {
-      registerAdminPlayerID(playerID);
-    }
-  }, [isInitialized, playerID]);
+    if (!isInitialized) return;
 
-  useEffect(() => {
-    if (!isInitialized || loading || !userInfo) return;
-    console.log('[Notif] Checking notification status, playerID:', playerID);
-    
-    if (!playerID && window.OneSignal) {
-      window.OneSignal.isPushNotificationsEnabled()
-        .then((enabled) => {
-          console.log('[Notif] Push enabled:', enabled);
-          if (!enabled) {
-            setShowPrompt(true);
-            console.log('[Notif] Showing prompt - notifications disabled');
-          }
-        })
-        .catch((err) => {
-          console.log('[Notif] isPushNotificationsEnabled error:', err.message);
-          setShowPrompt(true);
-        });
+    if (!userInfo) {
+      // User logged out — reset state
+      setPlayerID('');
+      setShowPrompt(false);
+      checkedUserId.current = null;
+      return;
     }
-  }, [isInitialized, loading, userInfo, playerID]);
 
-  const savePlayerID = async (userId) => {
+    // Avoid re-running for the same user session
+    if (checkedUserId.current === userInfo._id) return;
+    checkedUserId.current = userInfo._id;
+
+    runNotificationCheck(userInfo);
+  }, [isInitialized, userInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Core check logic ──────────────────────────────────────────────────────
+  const runNotificationCheck = async (user) => {
+    console.log('[Notif] Running notification check for user:', user._id);
+
+    // Get current device subscription ID (v16 API)
+    let currentSubId = null;
     try {
-      console.log('[Notif] Saving playerID:', userId);
-      await API.put('/users/notification', { playerID: userId, notificationEnabled: true });
-      console.log('[Notif] PlayerID saved successfully');
+      currentSubId = window.OneSignal?.User?.PushSubscription?.id ?? null;
+      console.log('[Notif] Current PushSubscription.id:', currentSubId);
+    } catch (e) {
+      console.log('[Notif] Could not read PushSubscription.id:', e.message);
+    }
+
+    // Check browser permission
+    let permissionGranted = false;
+    try {
+      permissionGranted = window.OneSignal?.Notifications?.permission ?? false;
+      console.log('[Notif] Notifications.permission:', permissionGranted);
+    } catch (e) {
+      console.log('[Notif] Could not read Notifications.permission:', e.message);
+    }
+
+    const dbPlayerID = user.playerID || '';
+    const dbPlayerIDs = user.playerIDs || [];
+
+    if (permissionGranted && currentSubId) {
+      // Already subscribed on this device
+      setPlayerID(currentSubId);
+
+      // Check if this device ID is already saved
+      const alreadySaved =
+        dbPlayerID === currentSubId || dbPlayerIDs.includes(currentSubId);
+
+      if (!alreadySaved) {
+        console.log('[Notif] New device detected, saving ID to DB');
+        await savePlayerID(currentSubId);
+      }
+
+      // Register admin IDs if admin
+      if (user.isAdmin) {
+        registerAdminPlayerID(currentSubId);
+      }
+    } else {
+      // Not subscribed — check if this is a device change situation
+      if (dbPlayerID && currentSubId && dbPlayerID !== currentSubId && !dbPlayerIDs.includes(currentSubId)) {
+        console.log('[Notif] Device change detected — showing deferred prompt');
+      } else {
+        console.log('[Notif] Notifications not granted — showing prompt');
+      }
+      setShowPrompt(true);
+    }
+  };
+
+  // ─── Save playerID to DB (appends to playerIDs array) ─────────────────────
+  const savePlayerID = async (id) => {
+    if (!id) return;
+    try {
+      console.log('[Notif] Saving playerID to DB:', id);
+      await API.put('/users/notification', { playerID: id, notificationEnabled: true });
+      console.log('[Notif] playerID saved');
     } catch (err) {
       console.log('[Notif] Failed to save playerID:', err.response?.data || err.message);
     }
   };
 
-  const registerAdminPlayerID = async (userId) => {
+  // ─── Register admin playerID in app settings ──────────────────────────────
+  const registerAdminPlayerID = async (id) => {
     try {
-      console.log('[Notif] Registering admin playerID:', userId);
       const { data } = await API.get('/settings/admin-player-ids');
-      const currentIDs = data.adminPlayerIDs || [];
-      console.log('[Notif] Current admin IDs:', currentIDs);
-      
-      if (!currentIDs.includes(userId)) {
-        await API.put('/settings/admin-player-ids', { playerIDs: [...currentIDs, userId] });
-        console.log('[Notif] Admin playerID registered');
-      } else {
-        console.log('[Notif] Admin playerID already registered');
+      const current = data.adminPlayerIDs || [];
+      if (!current.includes(id)) {
+        await API.put('/settings/admin-player-ids', { playerIDs: [...current, id] });
+        console.log('[Notif] Admin playerID registered in settings');
       }
     } catch (err) {
       console.log('[Notif] Failed to register admin playerID:', err.response?.data || err.message);
     }
   };
 
+  // ─── Called when user clicks "Allow" in our custom prompt ─────────────────
   const enableNotifications = async () => {
-    console.log('[Notif] enableNotifications called');
-    if (!window.OneSignal) {
-      console.log('[Notif] OneSignal not available');
-      return false;
-    }
+    if (!window.OneSignal) return false;
     try {
-      console.log('[Notif] Showing sliding notification...');
-      await window.OneSignal.showSlidingNotification();
-      
-      const userId = await window.OneSignal.getUserId();
-      console.log('[Notif] After prompt, userId:', userId);
-      
-      if (userId) {
-        setPlayerID(userId);
+      console.log('[Notif] Requesting browser permission...');
+      await window.OneSignal.Notifications.requestPermission();
+
+      // Wait a tick for the subscription to settle
+      await new Promise((r) => setTimeout(r, 500));
+
+      const id = window.OneSignal.User?.PushSubscription?.id ?? null;
+      console.log('[Notif] After permission grant, subscription ID:', id);
+
+      if (id) {
+        setPlayerID(id);
         setShowPrompt(false);
-        await savePlayerID(userId);
-        
-        if (isAdmin) {
-          await registerAdminPlayerID(userId);
+        await savePlayerID(id);
+
+        if (userInfo?.isAdmin) {
+          await registerAdminPlayerID(id);
         }
         return true;
       }
     } catch (err) {
-      console.log('[Notif] Enable notifications error:', err.message);
+      console.log('[Notif] enableNotifications error:', err.message);
     }
     return false;
   };

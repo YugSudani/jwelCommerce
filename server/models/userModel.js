@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
   state: { type: String, default: '' },
   country: { type: String, default: 'India' },
   playerID: { type: String, default: '' },
+  playerIDs: { type: [String], default: [] },
   notificationEnabled: { type: Boolean, default: false },
 }, {
   timestamps: true

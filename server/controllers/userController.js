@@ -26,6 +26,7 @@ const buildUserPayload = (user) => ({
   state: user.state || '',
   country: user.country || 'India',
   playerID: user.playerID || '',
+  playerIDs: user.playerIDs || [],
   notificationEnabled: user.notificationEnabled || false,
 });
 

@@ -19,15 +19,33 @@ router.put('/notification', protect, async (req, res, next) => {
     }
     const { playerID, notificationEnabled } = req.body;
     console.log('[UserRoutes] Saving notification:', { playerID, notificationEnabled });
+
     if (playerID !== undefined) {
+      // Always update primary playerID (most recent device)
       user.playerID = playerID;
+
+      // Append to playerIDs array only if not already present (multi-device)
+      if (!user.playerIDs) user.playerIDs = [];
+      if (!user.playerIDs.includes(playerID)) {
+        user.playerIDs.push(playerID);
+        console.log('[UserRoutes] Appended new playerID to array. Total IDs:', user.playerIDs.length);
+      } else {
+        console.log('[UserRoutes] playerID already in array, skipping duplicate');
+      }
     }
+
     if (notificationEnabled !== undefined) {
       user.notificationEnabled = notificationEnabled;
     }
+
     await user.save();
-    console.log('[UserRoutes] Notification saved, user.playerID:', user.playerID);
-    res.json({ message: 'Notification settings updated', playerID: user.playerID, notificationEnabled: user.notificationEnabled });
+    console.log('[UserRoutes] Notification saved. playerID:', user.playerID, 'playerIDs count:', user.playerIDs.length);
+    res.json({
+      message: 'Notification settings updated',
+      playerID: user.playerID,
+      playerIDs: user.playerIDs,
+      notificationEnabled: user.notificationEnabled,
+    });
   } catch (err) {
     console.log('[UserRoutes] Error saving notification:', err.message);
     next(err);

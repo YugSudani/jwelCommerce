@@ -49,16 +49,29 @@ const sendNotification = async (playerIds, heading, message, data = {}) => {
 
 const sendOrderNotificationToUser = async (user) => {
   console.log('[NotifService] sendOrderNotificationToUser:', { playerID: user?.playerID, notificationEnabled: user?.notificationEnabled });
-  
-  if (!user?.playerID || !user?.notificationEnabled) {
-    console.log('[NotifService] User notifications disabled or no playerID. Skipping.');
+
+  if (!user?.notificationEnabled) {
+    console.log('[NotifService] User notifications disabled. Skipping.');
     return null;
   }
-  
-  console.log('[NotifService] Sending order confirmation to user:', user.playerID);
+
+  // Collect all unique, non-empty player IDs across all devices
+  const idsSet = new Set();
+  if (user.playerID) idsSet.add(user.playerID);
+  if (Array.isArray(user.playerIDs)) {
+    user.playerIDs.forEach((id) => { if (id) idsSet.add(id); });
+  }
+  const allIds = Array.from(idsSet);
+
+  if (allIds.length === 0) {
+    console.log('[NotifService] No player IDs found for user. Skipping.');
+    return null;
+  }
+
+  console.log('[NotifService] Sending order confirmation to user IDs:', allIds);
   return sendNotification(
-    [user.playerID],
-    'Order Confirmed',
+    allIds,
+    'Order Confirmed ✅',
     'Your order has been placed successfully! We will update you on its progress.',
     { type: 'order_placed' }
   );
@@ -66,12 +79,12 @@ const sendOrderNotificationToUser = async (user) => {
 
 const sendOrderNotificationToAdmin = async (adminPlayerIds, order, userName) => {
   console.log('[NotifService] sendOrderNotificationToAdmin:', { adminPlayerIds, userName, orderId: order?._id });
-  
+
   if (!adminPlayerIds || adminPlayerIds.length === 0) {
     console.log('[NotifService] No admin playerIDs. Skipping admin notification.');
     return null;
   }
-  
+
   const message = `New order from ${userName}. Total: ₹${order.totalPrice}. Check admin panel for details.`;
   console.log('[NotifService] Sending new order notification to admins:', adminPlayerIds);
   return sendNotification(
