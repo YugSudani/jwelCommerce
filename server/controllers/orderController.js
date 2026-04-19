@@ -9,7 +9,9 @@ const { getSettings } = require('../models/appSettingsModel');
 // @access  Private
 const addOrderItems = async (req, res) => {
   try {
+    console.log('[OrderController] addOrderItems called');
     const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
+    console.log('[OrderController] Order details:', { totalPrice, items: orderItems?.length });
 
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -39,13 +41,16 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+    console.log('[OrderController] Order created:', createdOrder._id);
 
     const user = await User.findById(req.user._id);
-    sendOrderNotificationToUser(user).catch(console.error);
+    console.log('[OrderController] User for notification:', { playerID: user.playerID, notificationEnabled: user.notificationEnabled });
+    sendOrderNotificationToUser(user).catch(err => console.log('[OrderController] User notif error:', err.message));
 
     const settings = await getSettings();
+    console.log('[OrderController] Admin playerIDs:', settings.adminPlayerIDs);
     if (settings.adminPlayerIDs && settings.adminPlayerIDs.length > 0) {
-      sendOrderNotificationToAdmin(settings.adminPlayerIDs, createdOrder, user.name).catch(console.error);
+      sendOrderNotificationToAdmin(settings.adminPlayerIDs, createdOrder, user.name).catch(err => console.log('[OrderController] Admin notif error:', err.message));
     }
 
     try {
