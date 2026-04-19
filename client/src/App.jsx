@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider, ThemeContext } from './context/ThemeContext';
 import { ProductsProvider } from './context/ProductsContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
+import NotificationPrompt from './components/NotificationPrompt';
 
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -124,21 +126,23 @@ const SmartToaster = () => {
 };
 
 function App() {
-
   return (
     <Router>
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
             <ProductsProvider>
-              <ScrollToTop />
-              <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-                <Navbar />
-                <main className="container mx-auto px-4 pt-4 pb-20">
-                  <AnimatedRoutes />
-                </main>
-                <SmartToaster />
-              </div>
+              <NotificationProvider>
+                <ScrollToTop />
+                <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+                  <Navbar />
+                  <main className="container mx-auto px-4 pt-4 pb-20">
+                    <AnimatedRoutes />
+                  </main>
+                  <NotificationPrompt />
+                  <SmartToaster />
+                </div>
+              </NotificationProvider>
             </ProductsProvider>
           </CartProvider>
         </AuthProvider>

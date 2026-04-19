@@ -1,6 +1,8 @@
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
+const { sendOrderNotificationToUser, sendOrderNotificationToAdmin } = require('../services/notificationService');
+const { getSettings } = require('../models/appSettingsModel');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -37,6 +39,14 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    const user = await User.findById(req.user._id);
+    sendOrderNotificationToUser(user).catch(console.error);
+
+    const settings = await getSettings();
+    if (settings.adminPlayerIDs && settings.adminPlayerIDs.length > 0) {
+      sendOrderNotificationToAdmin(settings.adminPlayerIDs, createdOrder, user.name).catch(console.error);
+    }
 
     try {
       const { phone, address, city, postalCode, state, country } = shippingAddress;

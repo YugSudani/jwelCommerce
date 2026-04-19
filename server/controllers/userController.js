@@ -25,6 +25,8 @@ const buildUserPayload = (user) => ({
   postalCode: user.postalCode || '',
   state: user.state || '',
   country: user.country || 'India',
+  playerID: user.playerID || '',
+  notificationEnabled: user.notificationEnabled || false,
 });
 
 const sendUserResponse = (res, user, statusCode = 200) => {
@@ -106,6 +108,14 @@ const updateUserProfile = async (req, res) => {
     user.postalCode = postalCode !== undefined ? postalCode : user.postalCode;
     user.state = state !== undefined ? state : user.state;
     user.country = country || user.country;
+
+    const { playerID, notificationEnabled } = req.body;
+    if (playerID !== undefined) {
+      user.playerID = playerID;
+    }
+    if (notificationEnabled !== undefined) {
+      user.notificationEnabled = notificationEnabled;
+    }
 
     const updatedUser = await user.save();
     res.json(buildUserPayload(updatedUser));

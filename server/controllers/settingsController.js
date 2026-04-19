@@ -1,8 +1,5 @@
 const { getSettings } = require('../models/appSettingsModel');
 
-// @desc    Get current global sort mode
-// @route   GET /api/settings/sort
-// @access  Public
 const getSortMode = async (req, res, next) => {
     try {
         const settings = await getSettings();
@@ -12,9 +9,6 @@ const getSortMode = async (req, res, next) => {
     }
 };
 
-// @desc    Update global sort mode
-// @route   PUT /api/settings/sort
-// @access  Private/Admin
 const setSortMode = async (req, res, next) => {
     try {
         const { sortMode } = req.body;
@@ -30,4 +24,28 @@ const setSortMode = async (req, res, next) => {
     }
 };
 
-module.exports = { getSortMode, setSortMode };
+const setAdminPlayerIDs = async (req, res, next) => {
+    try {
+        const { playerIDs } = req.body;
+        if (!Array.isArray(playerIDs)) {
+            return res.status(400).json({ message: 'playerIDs must be an array' });
+        }
+        const settings = await getSettings();
+        settings.adminPlayerIDs = playerIDs;
+        await settings.save();
+        res.json({ adminPlayerIDs: settings.adminPlayerIDs });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const getAdminPlayerIDs = async (req, res, next) => {
+    try {
+        const settings = await getSettings();
+        res.json({ adminPlayerIDs: settings.adminPlayerIDs || [] });
+    } catch (err) {
+        next(err);
+    }
+};
+
+module.exports = { getSortMode, setSortMode, setAdminPlayerIDs, getAdminPlayerIDs };

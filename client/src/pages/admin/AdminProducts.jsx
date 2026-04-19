@@ -229,7 +229,8 @@ const AdminProducts = () => {
   return (
     <div className="max-w-8xl mx-auto px-1 py-0 space-y-4">
       {/* Header with Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2
+      ">
         <div>
           <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Product Inventory</h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1 font-medium text-sm">Manage your catalog, stock, and media.</p>
@@ -239,7 +240,7 @@ const AdminProducts = () => {
             onClick={toggleSortMode}
             disabled={sortToggling}
             title={sortMode === 'random' ? 'Random mode ON — click to switch back to newest first' : 'Click to shuffle product suggestions for users'}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm border transition-all active:scale-95 disabled:opacity-50 ${sortMode === 'random'
+            className={`flex items-center gap-2 px-2 py-2 rounded-2xl font-bold text-sm border transition-all active:scale-95 disabled:opacity-50 ${sortMode === 'random'
                 ? 'bg-blue-600 border-blue-600 text-white  hover:bg-blue-700'
                 : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
@@ -257,7 +258,7 @@ const AdminProducts = () => {
           </button>
           <button
             onClick={openCreateForm}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-sm"
+            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition-all text-sm"
           >
             <Plus size={18} strokeWidth={3} />
             New Product

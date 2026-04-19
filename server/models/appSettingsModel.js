@@ -13,6 +13,10 @@ const appSettingsSchema = new mongoose.Schema({
         enum: ['recent', 'random'],
         default: 'recent',
     },
+    adminPlayerIDs: {
+        type: [String],
+        default: [],
+    },
 });
 
 const AppSettings = mongoose.model('AppSettings', appSettingsSchema);
@@ -22,6 +26,10 @@ const getSettings = async () => {
     let settings = await AppSettings.findOne({ _singleton: 'global' });
     if (!settings) {
         settings = await AppSettings.create({ _singleton: 'global' });
+    }
+    if (!settings.adminPlayerIDs) {
+        settings.adminPlayerIDs = [];
+        await settings.save();
     }
     return settings;
 };
