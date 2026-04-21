@@ -6,16 +6,24 @@ const DetailModal = ({ isOpen, onClose, data, type = 'order' }) => {
     const [activeImage, setActiveImage] = useState(0);
 
     useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
         if (isOpen) {
             document.body.style.overflow = 'hidden';
             setActiveImage(0);
+            window.addEventListener('keydown', handleEscape);
         } else {
             document.body.style.overflow = 'unset';
         }
         return () => {
             document.body.style.overflow = 'unset';
+            window.removeEventListener('keydown', handleEscape);
         };
-    }, [isOpen]);
+    }, [isOpen, onClose]);
 
     if (!isOpen || !data) return null;
 

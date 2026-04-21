@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNotification } from '../context/NotificationContext';
 import { Bell, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 const NotificationPrompt = () => {
   const { showPrompt, enableNotifications, setShowPrompt } = useNotification();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowPrompt(false);
+      }
+    };
+    if (showPrompt) {
+      window.addEventListener('keydown', handleEscape);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [showPrompt, setShowPrompt]);
 
   if (!showPrompt) return null;
 
